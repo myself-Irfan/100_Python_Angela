@@ -17,7 +17,7 @@ def gen_usr_in() -> str:
     return gen_usr_in.lower()
 
 
-def ret_ans(usr_in: str, gen_wrd: List, dis_wrd: List) -> List:
+def ret_ans(usr_in: str, gen_wrd: List, dis_wrd: List[str]) -> List[str]:
     # index to access the cur index
     for index, _ in enumerate(gen_wrd):
         if usr_in == _:
