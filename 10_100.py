@@ -1,4 +1,10 @@
 def get_title_name(name: str) -> str:
+    '''
+    returns a title case of the provided str, for empty in raises ValueError
+    :param name: str
+    :return: str
+    '''
+
     if not name:
         raise ValueError('Can not be empty')
     return name.title()
