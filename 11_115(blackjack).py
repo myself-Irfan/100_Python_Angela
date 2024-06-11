@@ -3,12 +3,12 @@ from typing import List
 
 
 def gen_rnd_crd() -> int:
-    '''return a random number between 2 to 11'''
+    """return a random number between 2 and 11"""
     return random.randint(2, 11)
 
 
 def gen_deck() -> List[int]:
-    '''return a shuffled deck of 52 cards'''
+    """return a shuffled deck of 52 cards"""
 
     new_deck = []
     while len(new_deck) < 52:
@@ -22,7 +22,7 @@ def gen_deck() -> List[int]:
 
 
 def deal_card(cur_deck: List[int], hand: List[int]) -> None:
-    '''deals a card and removes said card from deck'''
+    """deals a card and removes said card from deck"""
 
     cur_card = random.choice(cur_deck)
     hand.append(cur_card)
@@ -30,15 +30,19 @@ def deal_card(cur_deck: List[int], hand: List[int]) -> None:
 
 
 def adj_hand(hand: List[int]) -> int:
+    """takes a hand, calc sum and checks if has 11. if sum > 21 then changes the 11 to 1 and returns the final sum"""
     h_score = sum(hand)
     aces = hand.count(11)
     while h_score > 21 and aces:
+        hand[hand.index(11)] = 1
+        # h_score and aces are for while loop
         h_score -= 10
         aces -= 1
     return h_score
 
 
 def get_stat() -> bool:
+    """unless given Y/N it will repeatedly ask for an input"""
     while True:
         usr_in = input('Add card? Y/N: ').lower()
         if usr_in in ['y', 'n']:
@@ -65,6 +69,7 @@ def game() -> None:
     cur_deck = gen_deck()
     print("Deck generated.")
 
+    # init the game
     for _ in range(2):
         deal_card(cur_deck, usr_hand)
         deal_card(cur_deck, bot_hand)
@@ -75,7 +80,9 @@ def game() -> None:
     print(f'User hand: {usr_hand}, User score: {usr_score}')
     print(f'Bot hand: {bot_hand}, Bot score: {bot_score}')
 
+    # if usr score is greater than 0 but less than 21
     while 0 < usr_score < 21:
+        # if user returns yes
         if get_stat():
             deal_card(cur_deck, usr_hand)
             usr_score = adj_hand(usr_hand)
@@ -97,6 +104,7 @@ if __name__ == '__main__':
         while True:
             game()
             if input('Do you want to play again? Y/N: ').lower() != 'y':
+                # if n then break else true so repeat game
                 break
     except Exception as e:
         print(f'Error: {e}')
