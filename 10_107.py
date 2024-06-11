@@ -78,7 +78,7 @@ def main() -> None:
 
     shd_con = True
 
-    while shd_con == True:
+    while shd_con:
         y = ''
         while y not in ['+', '-', '*', '/']:
             y = gen_op()
