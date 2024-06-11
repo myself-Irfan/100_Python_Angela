@@ -78,7 +78,7 @@ def game() -> None:
     bot_score = adj_hand(bot_hand)
 
     print(f'User hand: {usr_hand}, User score: {usr_score}')
-    print(f'Bot hand: {bot_hand}, Bot score: {bot_score}')
+    print(f'Bot hand[0]: {bot_hand[0]}, Bot score: {bot_score}')
 
     # if usr score is greater than 0 but less than 21
     while 0 < usr_score < 21:
@@ -93,10 +93,10 @@ def game() -> None:
     while bot_score < 17:
         deal_card(cur_deck, bot_hand)
         bot_score = adj_hand(bot_hand)
-        print(f'Bot hand: {bot_hand}, Bot score: {bot_score}')
+        print(f'Bot hand[0]: {bot_hand[0]}, Bot score: {bot_score}')
 
     compare(usr_score, bot_score)
-    print(f'Final Score\nUser Score -> {usr_score}\nBot Score -> {bot_score}')
+    print(f'Final Score\t--> User Score: {usr_score}\tBot Score:{bot_score}')
 
 
 if __name__ == '__main__':
