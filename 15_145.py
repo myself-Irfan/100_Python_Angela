@@ -24,12 +24,15 @@ def check_resources(choice_ing: dict) -> bool:
     return True
 
 
+<<<<<<< HEAD
 def take_coin(cost: int) -> tuple[bool, int]:
     total = 0
     while total != cost:
         pass
 
 
+=======
+>>>>>>> 9c13fa6f2019a85d46199b03b41b08683b6b2114
 def make_drink():
     pass
 
