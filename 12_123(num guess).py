@@ -6,9 +6,13 @@ def usr_diff() -> str:
     while True:
         usr_in = input(
             'Please type \n"E" for easy\n"M" for medium\n"H" for hard\n"N" for cancel\nYour choice: ').upper()
-        if usr_in in ['E', 'M', 'H', 'N']:
+        if usr_in == 'N':
+            print("Game cancelled. Goodbye!")
+            exit()
+        elif usr_in in ['E', 'M', 'H']:
             return usr_in
-        print("Invalid choice. Please enter 'E', 'M', 'H' or 'N'.")
+        else:
+            print("Invalid choice. Please enter 'E', 'M', 'H' or 'N'.")
 
 
 def diff_tries(diff: str) -> int:
@@ -70,10 +74,6 @@ def play_game():
     print('Welcome to the Number Guessing Game!')
 
     usrDiff = usr_diff()
-
-    if usrDiff == 'N':
-        print("Game cancelled. Goodbye!")
-        return
 
     tries = diff_tries(usrDiff)
     print(f'Difficulty: {usrDiff}\tTries: {tries}')
