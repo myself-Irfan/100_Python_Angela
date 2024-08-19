@@ -1,4 +1,5 @@
 def get_usr_c() -> str:
+    """Takes user input and returns related item name"""
     while True:
         usr_c = input('Enter your choice\n"E" for espresso\n"L" for latte\n"C" for cappuccino\n').lower()
         if usr_c == 'q':
@@ -12,11 +13,17 @@ def get_usr_c() -> str:
 
 
 def print_report():
+    """print report"""
     print(
         f'Current resource:\nWater: {resources.get("water")}ml\nMilk: {resources.get("milk")}ml\nCoffee: {resources.get("coffee")}g\nMoney: ${money}')
 
 
 def check_resources(choice_ing: dict) -> bool:
+    """
+    returns if resource is sufficient
+    :param choice_ing: dictionary of user-choice item's ingredients
+    :return: bool
+    """
     for ing, amt_req in choice_ing.items():
         if resources[ing] < amt_req:
             print(f'Warning! {ing} not sufficient')
@@ -46,6 +53,11 @@ def take_coin(cost: float) -> float:
 
 
 def make_drink(choice_ing):
+    """
+
+    :param choice_ing:
+    :return: nothing
+    """
     for ing, req_amt in choice_ing.items():
         resources[ing] -= req_amt
 
