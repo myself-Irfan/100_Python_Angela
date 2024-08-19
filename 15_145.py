@@ -5,7 +5,7 @@ def get_usr_c() -> str:
             exit()
         elif usr_c == 'r':
             print_report()
-        elif usr_c in ['e', 'l', 'c']:
+        elif usr_c in MENU:
             return usr_c
         else:
             print('Please provide accurate info')
@@ -13,25 +13,43 @@ def get_usr_c() -> str:
 
 def print_report():
     print(
-        f'Current resource:\nWater: {resources.get('water')}ml\nMilk: {resources.get('milk')}ml\nCoffee: {resources.get('coffee')}g\nMoney: ${money}')
+        f'Current resource:\nWater: {resources.get("water")}ml\nMilk: {resources.get("milk")}ml\nCoffee: {resources.get("coffee")}g\nMoney: ${money}')
 
 
 def check_resources(choice_ing: dict) -> bool:
-    for ing in choice_ing:
-        if resources[ing] < choice_ing[ing]:
-            print(f'{ing} not available')
+    for ing, amt_req in choice_ing.items():
+        if resources[ing] < amt_req:
+            print(f'Warning! {ing} not sufficient')
             return False
     return True
 
 
-def take_coin(cost: int) -> tuple[bool, int]:
+def take_coin(cost: float) -> float:
+    print(f'Total bill is ${cost}. Please insert coins')
     total = 0
-    while total != cost:
-        pass
+
+    for key, value in COIN_T.items():
+        while True:
+            try:
+                amt = int(input(f'How many {key}? '))
+                total += amt * value
+                break
+            except ValueError:
+                print("Please enter a valid number")
+
+    if total >= cost:
+        change = total - cost
+        return change
+    else:
+        print(f"Not enough coins. Refunding coins. Missing amount ${cost-total}")
+        return -1
 
 
-def make_drink():
-    pass
+def make_drink(choice_ing):
+    for ing, req_amt in choice_ing.items():
+        resources[ing] -= req_amt
+
+    print('Enjoy your drink')
 
 
 def main():
@@ -44,22 +62,31 @@ def main():
 
     if is_available:
         print(f'Can make {usr_c}')
+        change = take_coin(MENU_ING.get(usr_c).get('cost'))
+        if change != -1:
+            make_drink(MENU_ING.get(usr_c).get('ingredients'))
+            if change > 0:
+                print(f'Take change {change}')
+        else:
+            print('Transaction failed')
     else:
         print(f'Can not make {usr_c}')
+
+    return input("Continue? (Y/N)").strip().lower()
 
 
 if __name__ == '__main__':
     MENU_ING = {
         "espresso": {
-            "ingredients": { "water": 50, "coffee": 18 },
+            "ingredients": {"water": 50, "coffee": 18},
             "cost": 1.5,
         },
         "latte": {
-            "ingredients": { "water": 200, "milk": 150, "coffee": 24 },
+            "ingredients": {"water": 200, "milk": 150, "coffee": 24},
             "cost": 2.5,
         },
         "cappuccino": {
-            "ingredients": { "water": 250, "milk": 100, "coffee": 24 },
+            "ingredients": {"water": 250, "milk": 100, "coffee": 24},
             "cost": 3.0,
         }
     }
@@ -78,4 +105,20 @@ if __name__ == '__main__':
 
     money = 0
 
-    main()
+    COIN_T = {
+        "quarters": 0.25,
+        "dimes": 0.10,
+        "pennies": 0.01
+    }
+
+    while True:
+        res = main()
+        if res == 'n':
+            print('Terminating...')
+            break
+        elif res == 'y':
+            continue
+        elif res == 'r':
+            print_report()
+        else:
+            print("Please provide valid input ('y' to terminate or 'n' to continue)")
