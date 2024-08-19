@@ -126,9 +126,9 @@ if __name__ == '__main__':
     }
 
     resources = {
-        'water': 1000,
-        'milk': 700,
-        'coffee': 500
+        'water': 100,
+        'milk': 70,
+        'coffee': 50
     }
 
     money = 0
