@@ -1,4 +1,8 @@
 def get_usr_c() -> str:
+    """
+    Takes user input and returns related item name
+    :return: string of user choice
+    """
     while True:
         usr_c = input('Enter your choice\n"E" for espresso\n"L" for latte\n"C" for cappuccino\n').lower()
         if usr_c == 'q':
@@ -12,11 +16,20 @@ def get_usr_c() -> str:
 
 
 def print_report():
+    """
+    print report
+    :return: nothing
+    """
     print(
         f'Current resource:\nWater: {resources.get("water")}ml\nMilk: {resources.get("milk")}ml\nCoffee: {resources.get("coffee")}g\nMoney: ${money}')
 
 
 def check_resources(choice_ing: dict) -> bool:
+    """
+    returns if resource is sufficient
+    :param choice_ing: dictionary of user-choice item's ingredients
+    :return: bool
+    """
     for ing, amt_req in choice_ing.items():
         if resources[ing] < amt_req:
             print(f'Warning! {ing} not sufficient')
@@ -25,6 +38,11 @@ def check_resources(choice_ing: dict) -> bool:
 
 
 def take_coin(cost: float) -> float:
+    """
+    takes user item cost and tries to take coins, returns change if overpaid, returns amt if underpaid
+    :param cost: float user choice item cost
+    :return: float user_change
+    """
     print(f'Total bill is ${cost}. Please insert coins')
     total = 0
 
@@ -46,6 +64,11 @@ def take_coin(cost: float) -> float:
 
 
 def make_drink(choice_ing):
+    """
+    Takes the ingredient dict of user choice and subtracts from global resource
+    :param choice_ing: ingredient dict of user choice
+    :return: nothing
+    """
     for ing, req_amt in choice_ing.items():
         resources[ing] -= req_amt
 
@@ -78,6 +101,9 @@ def main():
 
 
 if __name__ == '__main__':
+    """
+    function which declares global resources and inits the main func
+    """
     MENU_ING = {
         "espresso": {
             "ingredients": {"water": 50, "coffee": 18},
