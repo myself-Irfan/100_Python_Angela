@@ -53,6 +53,7 @@ def make_drink(choice_ing):
 
 
 def main():
+    global money
     usr_c = get_usr_c()
     usr_c = MENU[usr_c]
 
@@ -64,6 +65,7 @@ def main():
         print(f'Can make {usr_c}')
         change = take_coin(MENU_ING.get(usr_c).get('cost'))
         if change != -1:
+            money += MENU_ING.get(usr_c).get('cost')  # Update global money with the cost
             make_drink(MENU_ING.get(usr_c).get('ingredients'))
             if change > 0:
                 print(f'Take change {change}')
