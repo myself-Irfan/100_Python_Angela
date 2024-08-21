@@ -13,10 +13,11 @@ class User:
         """
         return self._name
 
-    def set_name(self, name: str):
+    def set_name(self, name: str) -> None:
         """
         updates an obj's attribute name
         :param name: string
+        :return: None
         """
         self._name = name
 
