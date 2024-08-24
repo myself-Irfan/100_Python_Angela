@@ -13,15 +13,27 @@ def draw_all(turtle: Turtle) -> None:
         make_shape(turtle, _)
 
 
+def draw_spirograph(turtle: Turtle, c_size: int, c_gap: int) -> None:
+    """
+    According to gap, will calculate how many iters/circle will be created
+    :return: None
+    """
+    for _ in range(360//c_gap):
+        turtle.circle(c_size)
+        turtle.right(c_gap)
+    print('Finished spirograph')
+
+
 def main():
     i_screen = Screen()
 
     t1 = Turtle()
     t1.shape('turtle')
     t1.color('red')
+    t1.speed('fastest')
 
-    draw_all(t1)
-
+    # draw_all(t1)
+    draw_spirograph(t1, 50, 5)
     i_screen.exitonclick()
 
 
