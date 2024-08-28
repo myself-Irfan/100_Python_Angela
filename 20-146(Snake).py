@@ -1,6 +1,8 @@
 from turtle import Turtle, Screen
 from time import sleep
 from random import randint
+from dotenv import load_dotenv
+import os
 
 
 class TurtleI(Turtle):
@@ -35,13 +37,20 @@ class SnakeI:
         for pos in START_POS:
             self.add_segment(pos)
 
-    def add_segment(self, pos):
+    def add_segment(self, pos) -> None:
         seg = TurtleI('white', 'square')
         seg.goto(pos)
         self.segments.append(seg)
 
-    def extend(self):
+    def extend(self) -> None:
         self.add_segment(self.segments[-1].position())
+
+    def reset_snake(self):
+        for seg in self.segments:
+            seg.goto(1000, 1000)
+        self.segments.clear()
+        self.create_snake()
+        self.head = self.segments[0]
 
     def move(self) -> None:
         """
@@ -129,6 +138,7 @@ class ScoreBoard(TurtleI):
     def __init__(self):
         super().__init__('white', 'arrow')
         self.score = 0
+        self.h_score = int(os.environ.get('SNAKE_H_SCORE'))
         self.hideturtle()
         self.init_pos()
         self.write_score()
@@ -138,15 +148,44 @@ class ScoreBoard(TurtleI):
 
     def write_score(self):
         self.clear()
-        self.write(f'Score: {self.score}', align=TXT_ALIGN, font=TXT_STYLE)
+        self.write(f'Score: {self.score} High Score: {self.h_score}', align=TXT_ALIGN, font=TXT_STYLE)
 
     def up_score(self):
         self.score += 1
         self.write_score()
 
-    def w_game_over(self):
-        self.goto(0, 0)
-        self.write('GAME OVER', align=TXT_ALIGN, font=TXT_STYLE)
+    # def w_game_over(self):
+    #     self.goto(0, 0)
+    #     self.write('GAME OVER', align=TXT_ALIGN, font=TXT_STYLE)
+
+    def reset_score(self):
+        if self.score > self.h_score:
+            self.h_score = self.score
+        self.score = 0
+        self.up_env_score(self.h_score)
+        self.write_score()
+
+    def up_env_score(self, up_score: int):
+        """
+        Write to .env file
+        """
+        lines = []
+        key_found = False
+
+        with open('.env', 'r') as file:
+            lines = file.readlines()
+
+        for i, line in enumerate(lines):
+            if line.startswith('SNAKE_H_SCORE'):
+                lines[i] = f'SNAKE_H_SCORE={up_score}\n'
+                key_found = True
+                break
+
+        if not key_found:
+            lines.append(f'SNAKE_H_SCORE={up_score}\n')
+
+        with open('.env', 'w') as file:
+            file.writelines(lines)
 
 
 def main():
@@ -172,19 +211,23 @@ def main():
 
         # collision with wall
         if abs(i_snake.head.xcor()) > 280 or abs(i_snake.head.ycor()) > 280:
-            game_on = False
-            i_scoreboard.w_game_over()
+            # game_on = False
+            i_scoreboard.reset_score()
+            i_snake.reset_snake()
 
         # collision with head
         for seg in i_snake.segments[1:]:
             if i_snake.head.distance(seg) < 10:
-                game_on = False
-                i_scoreboard.w_game_over()
+                # game_on = False
+                i_scoreboard.reset_score()
+                i_snake.reset_snake()
 
     i_screen.terminate_screen()
 
 
 if __name__ == '__main__':
+    load_dotenv()
+
     SC_H = 610
     SC_W = 600
 
