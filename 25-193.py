@@ -70,11 +70,16 @@ def main() -> None:
     i_score = ScoreBoard()
 
     usr_in_li = []
+    missing_li = []
 
     while len(usr_in_li) < 50:
         usr_in = i_screen.scrn_in(i_score.score, i_score.attempt)
         logger.info(f'Received input {usr_in}')
-        if usr_in in usr_in_li:
+        if usr_in == 'Exit':
+            logger.warning(f'User input is {usr_in}. Breaking loop')
+            missing_li = [state for state in in_df.state if state not in usr_in_li]
+            break
+        elif usr_in in usr_in_li:
             logger.info(f'{usr_in} already added once')
         else:
             if in_df.state.isin([usr_in]).any():
@@ -87,8 +92,9 @@ def main() -> None:
             else:
                 logger.warning(f'{usr_in} not found in dataframe')
         i_score.in_attempt()
-
     i_screen.screen.mainloop()
+
+    print(missing_li)
 
 
 if __name__ == '__main__':
