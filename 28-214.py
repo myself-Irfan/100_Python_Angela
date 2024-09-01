@@ -10,10 +10,10 @@ class LabelI(Label):
         self.grid(column=col, row=row)
 
 
-class ButtonI(Label):
-    def __init__(self, txt):
+class ButtonI(Button):
+    def __init__(self, txt, command=None):
         super().__init__()
-        self.config(text=txt, highlightthickness=0, padx=5, pady=5)
+        self.config(text=txt, highlightthickness=0, padx=5, pady=5, command=command)
 
     def set_grid_pos(self, row: int, col: int):
         self.grid(row=row, column=col)
@@ -29,7 +29,7 @@ class CanvasT(Canvas):
         self.create_image(103, 112, image=image)
 
     def attach_txt(self, txt: str):
-        self.create_text(103, 130, text=txt, fill='white', font=(FONT_NAME, 25, 'bold'))
+        return self.create_text(103, 130, text=txt, fill='white', font=(FONT_NAME, 25, 'bold'))
 
 
 class WindowI(Tk):
@@ -38,6 +38,17 @@ class WindowI(Tk):
         self.title('Pomodoro')
         self.config(padx=100, pady=50, bg=YELLOW)
 
+    def count_down(self, canvas: CanvasT, timer_txt, count):
+        count_min = count // 60
+        count_sec = count % 60
+
+        canvas.itemconfig(timer_txt, text=f'{count_min:02}:{count_sec:02}')
+        if count > 0:
+            self.after(1000, self.count_down, canvas, timer_txt, count - 1)
+
+    def start_timer(self, canvas: CanvasT, timer_txt):
+        pass
+
 
 def main():
     i_window = WindowI()
@@ -45,12 +56,12 @@ def main():
 
     t_photo = PhotoImage(file='tomato.png')
     i_canvas.attach_img(t_photo)
-    i_canvas.attach_txt('00:00')
+    timer_txt = i_canvas.attach_txt('00:00')
 
     label_timer = LabelI('Timer', GREEN, YELLOW)
     label_timer.set_grid_pos(1,0)
 
-    start_btn = ButtonI('Start')
+    start_btn = ButtonI('Start', command=lambda: i_window.count_down(i_canvas, timer_txt))
     start_btn.set_grid_pos(2,0)
 
     reset_btn = ButtonI('Reset')
