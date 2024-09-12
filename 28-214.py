@@ -37,17 +37,31 @@ class WindowI(Tk):
         super().__init__()
         self.title('Pomodoro')
         self.config(padx=100, pady=50, bg=YELLOW)
+        self.cycle = 0
 
-    def count_down(self, canvas: CanvasT, timer_txt, count):
+    def count_down(self, canvas: CanvasT, label_timer: LabelI, timer_txt, count):
         count_min = count // 60
         count_sec = count % 60
 
         canvas.itemconfig(timer_txt, text=f'{count_min:02}:{count_sec:02}')
         if count > 0:
-            self.after(1000, self.count_down, canvas, timer_txt, count - 1)
+            self.after(1000, self.count_down, canvas, label_timer, timer_txt, count - 1)
+        else:
+            if self.cycle < 8:
+                self.start_timer(canvas, label_timer, timer_txt)
 
-    def start_timer(self, canvas: CanvasT, timer_txt):
-        pass
+    def start_timer(self, canvas: CanvasT, label_timer: LabelI, timer_txt):
+        self.cycle += 1
+
+        if self.cycle == 8:
+            label_timer.config(text='LONG BREAK')
+            self.count_down(canvas, label_timer, timer_txt, LONG_BREAK_MIN)
+        elif self.cycle % 2 == 0:
+            label_timer.config(text='SHORT BREAK')
+            self.count_down(canvas, label_timer, timer_txt,SHORT_BREAK_MIN)
+        else:
+            label_timer.config(text='WORK')
+            self.count_down(canvas, label_timer, timer_txt,WORK_MIN)
 
 
 def main():
@@ -61,13 +75,13 @@ def main():
     label_timer = LabelI('Timer', GREEN, YELLOW)
     label_timer.set_grid_pos(1,0)
 
-    start_btn = ButtonI('Start', command=lambda: i_window.count_down(i_canvas, timer_txt))
+    start_btn = ButtonI('Start', command=lambda: i_window.start_timer(i_canvas, label_timer, timer_txt))
     start_btn.set_grid_pos(2,0)
 
     reset_btn = ButtonI('Reset')
     reset_btn.set_grid_pos(2,2)
 
-    check_mark = LabelI('✔', GREEN, YELLOW)
+    check_mark = LabelI('', GREEN, YELLOW)
     check_mark.set_grid_pos(1,3)
 
     i_window.mainloop()
