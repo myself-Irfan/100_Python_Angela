@@ -1,6 +1,7 @@
 from tkinter import Tk, Canvas, PhotoImage, Label, Entry, Button, END, messagebox
 from pwd_gen import gen_pwd # 5_57 need to be renamed to import
 import pyperclip
+import json
 
 
 class PwdManageApp:
@@ -64,10 +65,17 @@ class PwdManageApp:
         usr_info = self.e_usrmail.get()
         usr_pwd = self.e_pwd.get()
 
+        new_entry = {
+            f"{usr_web}": {
+                "email": usr_info,
+                "password": usr_pwd
+            }
+        }
+
         if usr_pwd and usr_info and usr_web:
             if messagebox.askokcancel(title=f"{usr_web}", message=f"Confirm save:\n Username/E-mail: {usr_info}\n Password: {usr_pwd}"):
-                with open('29-220.txt', 'a') as f:
-                    f.write(f'{usr_web} | {usr_info} | {usr_pwd}\n')
+                with open('29-220.json', 'a') as f:
+                    json.dump(new_entry, f)
                 self.empty_entry()
         else:
             messagebox.showerror(title='ERROR', message=f'Please fill the empty field')
