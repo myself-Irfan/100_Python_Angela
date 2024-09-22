@@ -7,14 +7,16 @@ sp_char = list(string.punctuation)
 
 
 def get_usr_in() -> tuple:
-    wrd_len = random.randint(1, 10)
+    wrd_len = random.randint(1, 6)
     sym_len = random.randint(1, 3)
     num_len = random.randint(1, 3)
 
     return wrd_len, sym_len, num_len
 
 
-def gen_pwd(wrd_len:int, sym_len:int, num_len:int) -> str:
+def gen_pwd() -> str:
+    wrd_len, sym_len, num_len = get_usr_in()
+
     pwd_wrd = []
     for _ in range(wrd_len + 1):
         pwd_wrd.append(random.choice(alpha_li))
@@ -36,8 +38,7 @@ def gen_pwd(wrd_len:int, sym_len:int, num_len:int) -> str:
 
 
 if __name__ == '__main__':
-    wrd_len, sym_len, num_len = get_usr_in()
-    nw_pwd = gen_pwd(wrd_len, sym_len, num_len)
+    nw_pwd = gen_pwd()
 
     print(nw_pwd)
 
