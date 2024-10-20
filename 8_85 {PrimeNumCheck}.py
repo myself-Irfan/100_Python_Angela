@@ -1,5 +1,6 @@
 import random
 from math import sqrt
+import logging
 
 
 def gen_end_no() -> int:
@@ -29,6 +30,14 @@ def check_prime(num: int) -> bool:
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            # logging.fileHandler('8-85.log'),
+            logging.StreamHandler()
+        ]
+    )
+
     gen_no = gen_end_no()
-    print(f'Checking {gen_no}')
-    print(check_prime(gen_no))
+    logging.info(f'{gen_no} is prime: {check_prime(gen_no)}')
