@@ -3,12 +3,53 @@ from dotenv import load_dotenv
 import logging
 import pytz # timezone -> Dhaka
 from datetime import datetime
+import requests
 
 from smtplib import SMTP, SMTPAuthenticationError, SMTPConnectError, SMTPException
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
+
+class ApiModule:
+    def __init__(self):
+        self.api_url = 'https://zenquotes.io/api/today'
+
+    def __send_req(self):
+        try:
+            resp = requests.get(self.api_url, timeout=TIMEOUT_MS)
+            resp.raise_for_status()
+            data = resp.json()
+            return data
+        except requests.exceptions.HTTPError as http_err:
+            logging.error(f'HTTP error: {http_err}')
+        except requests.exceptions.ConnectionError as conn_err:
+            logging.error(f'Connection error: {conn_err}')
+        except requests.exceptions.Timeout as timeout_err:
+            logging.error(f'Timeout error: {timeout_err}')
+        except requests.exceptions.RequestException as req_err:
+            logging.error(f'Request error: {req_err}')
+        except Exception as e:
+            logging.error(f'Unknown error: {e}')
+
+    def __clean_data(self, data):
+        try:
+            quote = data[0][RESP_KEY]
+            return quote
+        except IndexError as e:
+            logging.error(f'No item in the response: {e} | {data}')
+        except KeyError as e:
+            logging.error(f'{RESP_KEY} key not found in response: {e} | {data}')
+        except TypeError as e:
+            logging.error(f'Response structure mismatch: {e} | {type(data)} -> {data}')
+        except Exception as e:
+            logging.error(f'Unexpected error: {e}')
+        return None
+
+    def make_request(self):
+        response = self.__send_req()
+        return self.__clean_data(response)
 
 
 class MailModule:
@@ -58,28 +99,30 @@ class MailModule:
 
 
 def main():
+    iMail = MailModule()
+
     dhaka_tz = pytz.timezone('Asia/Dhaka')
     dhaka_now = datetime.now(dhaka_tz)
-    cur_day = dhaka_now.strftime('%A').lower()
+    cur_day = dhaka_now.strftime('%A').lower()  # get current day in name
 
     if cur_day in DAYS_2_SEND:
         logging.info(f'Today is {cur_day}. Initiating Mail!')
-        iMail = MailModule()
-        iMail.send_mail(
-            to_addrs=TO_USR,
-            sub='Holiday',
-            body='Enjoy your holiday'
-        )
+        sub='Holiday'
+        body='Enjoy your holiday'
     else:
         logging.info(f'Today is {cur_day}. Go work!')
+        iApi = ApiModule()
+        sub = 'Work Day'
+        body = iApi.make_request()
+
+    iMail.send_mail(
+        to_addrs=TO_USR,
+        sub=sub,
+        body=body
+    )
 
 
 if __name__ == '__main__':
-    TO_USR = 'ahmed.1995.irfan@gmail.com'
-    # CC_USR = ['afzal745@gmail.com', 'irfan.ahmed@tallykhata.com']
-
-    DAYS_2_SEND = ['friday', 'saturday']
-
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s | %(message)s',
@@ -88,5 +131,13 @@ if __name__ == '__main__':
             logging.StreamHandler()
         ]
     )
+
+    RESP_KEY = 'q'
+    TIMEOUT_MS = 50
+
+    TO_USR = 'ahmed.1995.irfan@gmail.com'
+    # CC_USR = ['afzal745@gmail.com', 'irfan.ahmed@tallykhata.com']
+
+    DAYS_2_SEND = ['friday', 'saturday']
 
     main()
