@@ -1,6 +1,7 @@
 import random
 import string
 from typing import List
+import logging
 
 alpha_li = list(string.ascii_lowercase)
 
@@ -30,7 +31,7 @@ def ret_ans(usr_in: str, gen_wrd: List, blank_li: List[str]) -> List[str]:
     return blank_li
 
 
-if __name__ == '__main__':
+def main():
     lives = 10
     score = 0
     t_g = 0
@@ -62,13 +63,27 @@ if __name__ == '__main__':
             lives -= 1
 
         if '_' not in blank_li:
-            print('You WIN!!!')
+            logging.info('You win!!')
             break
 
     if '_' in blank_li:
-        print('LOST!')
+        logging.info('LOST!')
 
     score = score + lives
     print('Scoreboard')
     print(f'Unique Vs Total -> {round((len(u_g) / t_g) * 100, 2)}%')
     print(f'Lives -> {lives}\nScore -> {score}\nFinal Answer -> {blank_li}')
+
+
+if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s | %(message)s',
+        handlers=[
+            # logging.FileHandler('hangman-log.log'),
+            logging.StreamHandler()
+        ]
+    )
+
+    main()
+

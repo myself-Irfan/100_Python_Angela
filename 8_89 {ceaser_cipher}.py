@@ -1,6 +1,7 @@
 import string
 import random
 from typing import List
+import logging
 
 # alpha list
 wrd_li = string.ascii_lowercase
@@ -35,16 +36,28 @@ def gen_dcrp_wrd(shift_wrd: int, enc_wrd: List[str]) -> List[str]:
 
     return decr_wrd
 
-
-if __name__ == '__main__':
+def main():
     shift_no = gen_shift_no()
-    print(f'User chose {shift_no}')
+    logging.info(f'User shift input: {shift_no}')
     gen_wrd = gen_rand_wrd()
-    print(f'Your word {"".join(gen_wrd)}')
+    logging.info(f'User word {"".join(gen_wrd)}')
 
     encr_wrd = gen_encr_wrd(shift_no, gen_wrd)
-    print(f'Encrypted Word -> {''.join(encr_wrd)}')
+    logging.info(f'Encrypted Word -> {''.join(encr_wrd)}')
 
     decr_wrd = gen_dcrp_wrd(shift_no, encr_wrd)
-    print(f'Decrypted Word -> {''.join(decr_wrd)}')
+    logging.info(f'Decrypted Word -> {''.join(decr_wrd)}')
+
+
+if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(level)s | %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler('ceaser-cipher-log.log')
+        ]
+    )
+
+    main()
 
