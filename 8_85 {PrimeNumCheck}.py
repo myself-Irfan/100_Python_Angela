@@ -12,12 +12,15 @@ def check_prime(num: int) -> bool:
 
     if num < 2:
         # if 1 then not prime
+        logging.info(f'Returning false for {num}')
         return False
     elif num < 4:
         # if 2 or 3 then prime
+        logging.info(f'Returning true for {num}')
         return True
     elif num % 2 == 0:
         # optimization: if even then not prime
+        logging.info(f'{num} % 2 == 0 as such returning false')
         return False
     else:
         # optimization: start with 3 till sqrt of num instead of num
