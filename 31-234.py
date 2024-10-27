@@ -1,3 +1,4 @@
+import logging
 from tkinter import Tk, Canvas, PhotoImage, Label, Button, messagebox
 import pandas as pd
 from pandas.errors import EmptyDataError
@@ -100,6 +101,15 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s | %(messages)',
+        handlers=[
+            logging.StreamHandler(),
+            # logging.FileHandler('31-234.log')
+        ]
+    )
+
     BACKGROUND_COLOR = '#B1DDC6'
     CSV_PATH = '31-234_fr_wrd.csv'
     FLIP_MS = 3000
