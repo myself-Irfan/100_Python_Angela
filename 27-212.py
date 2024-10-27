@@ -1,4 +1,5 @@
 from tkinter import Tk, Entry, Button, Label
+import logging
 
 
 class LabelI(Label):
@@ -49,7 +50,8 @@ class WindowI(Tk):
 def miles_to_km(miles: float) -> float:
     try:
         return miles * 1.609
-    except ValueError:
+    except ValueError as v:
+        logging.warning(f'Invalid value: {v}')
         return 0.0
 
 
@@ -78,4 +80,13 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s | %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler('27-172.log')
+        ]
+    )
+
     main()
