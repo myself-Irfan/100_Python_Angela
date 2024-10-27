@@ -1,7 +1,9 @@
 import os
+
+import geocoder
 from dotenv import load_dotenv
 import logging
-import pytz # timezone -> Dhaka
+import pytz  # timezone -> Dhaka
 from datetime import datetime
 import requests
 
@@ -12,7 +14,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
-class ApiModule:
+class ZenModule:
     def __init__(self):
         self.api_url = 'https://zenquotes.io/api/today'
 
@@ -52,6 +54,104 @@ class ApiModule:
         return self.__clean_data(response)
 
 
+class LocModule:
+    def __init__(self):
+        logging.info(f'Initiating {self.__class__}')
+        self.timeout_ms = TIMEOUT_MS
+        self.api_url = os.getenv('SUN_RISE_SET')
+        self.__build_api()
+        self.resp_req_fields = ['sunrise', 'sunset', 'solar_noon', 'day_length']
+
+    def __build_api(self):
+        self.lat, self.lng = self.__get_cur_co_ord()
+        if self.lat and self.lng:
+            logging.debug(f'Lat: {self.lat} | Long: {self.lng}')
+            self.api_url = self.api_url.format(self.lat, self.lng)
+        else:
+            logging.error('Unable to build API')
+            self.api_url = None
+
+    def __get_cur_co_ord(self):
+        logging.info(f'Fetching current location co-ordinates')
+
+        try:
+            g = geocoder.ip('me')
+            lat, long = g.latlng
+            logging.info(f'Current lat: {lat}, long: {long}')
+            return float(lat), float(long)
+        except ValueError as val_err:
+            logging.error(f'Value error: {val_err}')
+        except Exception as e:
+            logging.error(f'Error retrieving location: {e}')
+
+        return None
+
+    def __make_get_req(self):
+        logging.info(f'Fetching info related sun')
+
+        if self.api_url is None:
+            logging.error(f'Unable to retrieve data from {self.api_url}')
+            return None
+
+        try:
+            resp = requests.get(self.api_url, timeout=self.timeout_ms)
+            resp.raise_for_status()
+            data = resp.json()
+            return data
+        except requests.exceptions.HTTPError as http_err:
+            logging.error(f'HTTP Error: {http_err}')
+        except requests.exceptions.ConnectionError as conn_err:
+            logging.error(f'Connection error: {conn_err}')
+        except requests.exceptions.Timeout as time_err:
+            logging.error(f'Timeout Error: {time_err}')
+        except requests.exceptions.RequestException as req_err:
+            logging.error(f'Request error: {req_err}')
+        except Exception as e:
+            logging.error(f'Unexpected Error: {e}')
+
+        return None
+
+    def __fetch_sun_data(self):
+        api_data = self.__make_get_req()
+
+        try:
+            if not api_data:
+                raise ValueError('Api response Empty or Null')
+
+            if 'results' not in api_data:
+                raise KeyError(f'Key "results" not present | {api_data}')
+
+            api_data = api_data['results']
+
+            missing_field = [field for field in self.resp_req_fields if field not in api_data]
+            if missing_field:
+                raise KeyError(f'Missing field in API response: {missing_field} | Response: {api_data}')
+
+            return (
+                api_data.get('sunrise'),
+                api_data.get('sunset'),
+                api_data.get('solar_noon'),
+                api_data.get('day_length')
+            )
+        except KeyError as key_err:
+            logging.warning(key_err)
+        except ValueError as empty_err:
+            logging.error(empty_err)
+
+        return None
+
+    def return_mail_sun(self):
+        sun_data = self.__fetch_sun_data()
+        if sun_data:
+            sun_body = f"""
+                        Good morning. <br> Today's sunrise: {sun_data[0]}, 
+                        sunset: {sun_data[1]}, solar_noon: {sun_data[2]},
+                        day length: {sun_data[3]}
+                        """
+            return sun_body
+        return "Please check log for SunModule error"
+
+
 class MailModule:
     def __init__(self):
         load_dotenv()
@@ -65,7 +165,7 @@ class MailModule:
         self.msg['Cc'] = ', '.join(cc_addrs) if cc_addrs else ''
 
         self.msg['Subject'] = sub
-        self.msg.attach(MIMEText(body, 'plain'))
+        self.msg.attach(MIMEText(body, 'html'))
 
     def __send_mail_req(self, to_addrs, cc_addr=None):
         all_recipients = to_addrs + (cc_addr if cc_addr else '')
@@ -84,7 +184,8 @@ class MailModule:
             logging.error(f'Failed to authenticate with SMTP server. Please check credentials | {e}')
             raise
         except SMTPConnectError as e:
-            logging.error(f'Failed to connect to SMTP server. Please check network connection and server settings | {e}')
+            logging.error(
+                f'Failed to connect to SMTP server. Please check network connection and server settings | {e}')
             raise
         except SMTPException as e:
             logging.error(f'SMTP error occurred | {e}')
@@ -100,6 +201,7 @@ class MailModule:
 
 def main():
     iMail = MailModule()
+    iLoc = LocModule()
 
     dhaka_tz = pytz.timezone('Asia/Dhaka')
     dhaka_now = datetime.now(dhaka_tz)
@@ -107,13 +209,13 @@ def main():
 
     if cur_day in DAYS_2_SEND:
         logging.info(f'Today is {cur_day}. Initiating Mail!')
-        sub='Holiday'
-        body='Enjoy your holiday'
+        sub = 'Holiday'
+        body = str(iLoc.return_mail_sun()) + '<br>' + 'Enjoy your holiday'
     else:
         logging.info(f'Today is {cur_day}. Go work!')
-        iApi = ApiModule()
+        iApi = ZenModule()
         sub = 'Work Day'
-        body = iApi.make_request()
+        body = str(iLoc.return_mail_sun()) + '<br>' + iApi.make_request()
 
     iMail.send_mail(
         to_addrs=TO_USR,
@@ -133,7 +235,8 @@ if __name__ == '__main__':
     )
 
     RESP_KEY = 'q'
-    TIMEOUT_MS = 50
+    TIMEOUT_MS = 5000
+    REV_LANG = 'en'
 
     TO_USR = 'ahmed.1995.irfan@gmail.com'
     # CC_USR = ['afzal745@gmail.com', 'irfan.ahmed@tallykhata.com']

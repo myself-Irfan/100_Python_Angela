@@ -22,12 +22,12 @@ class ApiModule:
         logging.info('Attempting to send request')
 
         try:
-            resp = requests.get(self.api_url, timeout=TIME_MS)
+            resp = requests.get(self.api_url, timeout=self.timeout_ms)
             resp.raise_for_status()
             data = resp.json()
             return data
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f'HTTP Error: {http_err}')
+            logging.error(f'HTTP Error: {http_err.response.status_code} | {http_err}')
         except requests.exceptions.ConnectionError as conn_err:
             logging.error(f'Connection Error: {conn_err}')
         except requests.exceptions.Timeout as time_err:
@@ -67,18 +67,24 @@ class ApiModule:
 class PosModule:
     def __init__(self):
         logging.info('Initiating position module')
-        self.geolocator = Nominatim(user_agent='geoapiExercises')
+
+        self.geolocator = Nominatim(user_agent='ilocation')
+        self.language = REV_LANG
 
     def __fetch_location(self, lat: float, long: float):
-        logging.info('Attempting to fetch location')
+        logging.info(f'Attempting to fetch location for ({lat},{long})')
 
         try:
-            location = self.geolocator.reverse((lat, long), exactly_one=True, language=REV_LANG)
+            location = self.geolocator.reverse((lat, long), exactly_one=True, language=self.language)
+            logging.debug(f'Received location: {location}')
             return location.address if location else 'Location not found'
         except GeopyError as geo_err:
             logging.warning(f'Geopy error: {geo_err}')
         except GeocoderTimedOut as geoT_err:
             logging.warning(f'Geocoder Timed out: {geoT_err}')
+        except Exception as e:
+            logging.warning(f'Unexpected error: {e}')
+
         return None
 
     def giv_loc(self, lat: float, long: float):
@@ -101,7 +107,7 @@ def main():
 
 if __name__ == '__main__':
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format='%(asctime)s %(levelname)s | %(message)s',
         handlers=[
             logging.StreamHandler(),
@@ -112,7 +118,7 @@ if __name__ == '__main__':
     load_dotenv()
 
     ISS_API = os.getenv('CUR_ISS_POS_API')
-    TIME_MS = 30
+    TIME_MS = 5000
     KEY = 'iss_position'
     REV_LANG = 'en'
 
