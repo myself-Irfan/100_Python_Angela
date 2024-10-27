@@ -1,4 +1,6 @@
 .venv/
 .idea/
 .env
-24-183.txt
+*.txt
+*.log
+*.json
