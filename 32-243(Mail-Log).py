@@ -149,7 +149,7 @@ class LocModule:
         sun_data = self.__fetch_sun_data()
         if sun_data:
             sun_body = f"""
-                        Good morning. <br> Today's sunrise: {sun_data[0]}, 
+                        Today's sunrise: {sun_data[0]}, 
                         sunset: {sun_data[1]}, solar_noon: {sun_data[2]},
                         day length: {sun_data[3]}
                         """
@@ -200,6 +200,7 @@ class MailModule:
             raise
 
     def send_mail(self, to_addrs, sub, body, cc_addrs=None):
+        body = 'Dear Valued Receiver' + '<br>' + body + '<br>' + f'Best Regards, <br>Irfan Ahmed<br>{datetime.now(pytz.timezone('Asia/Dhaka')).strftime('%Y-%m-%d %I:%M %p')}'
         self.__compose_mail(to_addrs=to_addrs, sub=sub, body=body, cc_addrs=cc_addrs)
         self.__send_mail_req(to_addrs=to_addrs, cc_addr=cc_addrs)
 
