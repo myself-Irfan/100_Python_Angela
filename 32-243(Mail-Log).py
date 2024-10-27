@@ -59,17 +59,9 @@ class LocModule:
         logging.info(f'Initiating {self.__class__}')
         self.timeout_ms = TIMEOUT_MS
         self.api_url = os.getenv('SUN_RISE_SET')
+        self.api_params = None
         self.__build_api()
         self.resp_req_fields = ['sunrise', 'sunset', 'solar_noon', 'day_length']
-
-    def __build_api(self):
-        self.lat, self.lng = self.__get_cur_co_ord()
-        if self.lat and self.lng:
-            logging.debug(f'Lat: {self.lat} | Long: {self.lng}')
-            self.api_url = self.api_url.format(self.lat, self.lng)
-        else:
-            logging.error('Unable to build API')
-            self.api_url = None
 
     def __get_cur_co_ord(self):
         logging.info(f'Fetching current location co-ordinates')
@@ -86,15 +78,28 @@ class LocModule:
 
         return None
 
+    def __build_api(self):
+        self.lat, self.lng = self.__get_cur_co_ord()
+        if self.lat and self.lng:
+            logging.debug(f'Lat: {self.lat} | Long: {self.lng}')
+            self.api_params = {
+                'lat': self.lat,
+                'lng': self.lng,
+                'tzid': 'Asia/Dhaka'
+            }
+        else:
+            logging.error('Unable to set params')
+            self.api_params = None
+
     def __make_get_req(self):
         logging.info(f'Fetching info related sun')
 
-        if self.api_url is None:
+        if self.api_params is None:
             logging.error(f'Unable to retrieve data from {self.api_url}')
             return None
 
         try:
-            resp = requests.get(self.api_url, timeout=self.timeout_ms)
+            resp = requests.get(self.api_url, params=self.api_params, timeout=self.timeout_ms)
             resp.raise_for_status()
             data = resp.json()
             return data

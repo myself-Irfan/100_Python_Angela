@@ -11,16 +11,8 @@ class LocModule:
         logging.info(f'Initiating {self.__class__}')
         self.timeout_ms = TIME_MS
         self.api_url = API_URL
+        self.api_params = None
         self.__build_api()
-
-    def __build_api(self):
-        self.lat, self.lng = self.__get_cur_co_ord()
-        if self.lat and self.lng:
-            logging.debug(f'Lat: {self.lat} | Long: {self.lng}')
-            self.api_url = API_URL.format(self.lat, self.lng)
-        else:
-            logging.error('Unable to build API')
-            self.api_url = None
 
     def __get_cur_co_ord(self):
         logging.info(f'Fetching current location co-ordinates')
@@ -37,6 +29,19 @@ class LocModule:
 
         return None
 
+    def __build_api(self):
+        self.lat, self.lng = self.__get_cur_co_ord()
+        if self.lat and self.lng:
+            logging.debug(f'Lat: {self.lat} | Long: {self.lng}')
+            self.api_params = {
+                'lat': self.lat,
+                'lng': self.lng,
+                'tzid': 'Asia/Dhaka'
+            }
+        else:
+            logging.error('Unable to set params')
+            self.api_params = None
+
     def __get_sun_info(self):
         logging.info(f'Fetching info related sun')
 
@@ -45,7 +50,7 @@ class LocModule:
             return None
 
         try:
-            resp = requests.get(self.api_url, timeout=self.timeout_ms)
+            resp = requests.get(self.api_url, params=self.api_params, timeout=self.timeout_ms)
             resp.raise_for_status()
             data = resp.json()
             return data
@@ -86,7 +91,7 @@ def main():
 
 if __name__ == '__main__':
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format='%(asctime)s %(levelname)s | %(message)s',
         handlers=[
             logging.StreamHandler(),
