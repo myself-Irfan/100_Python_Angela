@@ -16,9 +16,12 @@ from email.mime.multipart import MIMEMultipart
 
 class ZenModule:
     def __init__(self):
+        logging.info(f'Initializing {self.__class__}')
         self.api_url = 'https://zenquotes.io/api/today'
 
     def __send_req(self):
+        logging.info(f'Sending request from {self.__class__}')
+
         try:
             resp = requests.get(self.api_url, timeout=TIMEOUT_MS)
             resp.raise_for_status()
@@ -36,6 +39,8 @@ class ZenModule:
             logging.error(f'Unknown error: {e}')
 
     def __clean_data(self, data):
+        logging.info('Cleaning response received from ZenApi')
+
         try:
             quote = data[0][RESP_KEY]
             return quote
@@ -79,6 +84,8 @@ class LocModule:
         return None
 
     def __build_api(self):
+        logging.info('Building api with params')
+
         self.lat, self.lng = self.__get_cur_co_ord()
         if self.lat and self.lng:
             logging.debug(f'Lat: {self.lat} | Long: {self.lng}')
@@ -117,6 +124,8 @@ class LocModule:
         return None
 
     def __fetch_sun_data(self):
+        logging.info('Cleaning data received from SunApi')
+
         api_data = self.__make_get_req()
 
         try:

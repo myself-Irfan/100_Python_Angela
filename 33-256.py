@@ -8,7 +8,7 @@ from pandas.errors import EmptyDataError
 
 class LocModule:
     def __init__(self):
-        logging.info(f'Initiating {self.__class__}')
+        logging.info(f'Initializing {self.__class__}')
         self.timeout_ms = TIME_MS
         self.api_url = API_URL
         self.api_params = None
