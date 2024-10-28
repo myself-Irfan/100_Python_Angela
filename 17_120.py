@@ -1,3 +1,4 @@
+import logging
 import requests
 from html import unescape
 
@@ -56,18 +57,31 @@ class QuizBrain:
 
 
 def fetch_qdata(amt: int):
-    url = f'https://opentdb.com/api.php?amount={amt}&category=18&type=boolean'
+    url = QUIZ_URL
+
+    api_params = {
+        'amount': amt,
+        'category': '18',
+        'type': 'boolean'
+    }
 
     try:
-        response = requests.get(url)
+        response = requests.get(url, params=api_params, timeout=TIMEOUT_MS)
         response.raise_for_status()  # Will raise an HTTPError if the response was unsuccessful
         resp_json = response.json().get('results', [])
         if not resp_json:
-            raise ValueError("No data received from the API.")
+            raise ValueError("Empty Response: No data received from the API.")
         return [{'text': unescape(resp.get('question')), 'answer': resp.get('correct_answer')} for resp in resp_json]
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred while fetching data: {e}")
-        return []
+    except requests.exceptions.ConnectionError as conn_err:
+        logging.error(f'Connection Error: {conn_err}')
+    except requests.exceptions.RequestException as req_err:
+        logging.warning(f"Request Error: {req_err}")
+    except ValueError as val_err:
+        logging.warning(val_err)
+    except Exception as e:
+        logging.error(f'Unexpected Error: {e}')
+
+    return []
 
 
 def main():
@@ -85,4 +99,16 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s | %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            # logging.FileHandler('17-120.log')
+        ]
+    )
+
+    QUIZ_URL = 'https://opentdb.com/api.php'
+    TIMEOUT_MS = 5000
+
     main()
