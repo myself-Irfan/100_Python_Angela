@@ -106,12 +106,14 @@ def main():
 
 
 if __name__ == '__main__':
+    cur_f_name = os.path.splitext(os.path.basename(__file__))[0]
+
     logging.basicConfig(
         level=logging.DEBUG,
         format='%(asctime)s %(levelname)s | %(message)s',
         handlers=[
             logging.StreamHandler(),
-            # logging.FileHandler('33-251.log')
+            # logging.FileHandler(f'{cur_f_name}.log')
         ]
     )
 
