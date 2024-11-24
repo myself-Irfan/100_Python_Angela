@@ -5,56 +5,68 @@ from google_sheet import GSheetService
 import requests
 
 
-def make_request(exercise_txt: str) -> dict | None:
-    headers = {
-        'x-app-id': APP_ID,
-        'x-app-key': API_KEY
-    }
+class NutritionixService:
+    def __init__(self):
+        self.app_id = os.getenv('NUTRITION_APP_ID')
+        self.api_key = os.getenv('NUTRITION_API_KEY')
+        self.api_endpt = os.getenv('NUTRITION_API_ENDPT')
+        self.api_timeout = int(os.getenv('TIMEOUT_MS'))
 
-    params = {
-        'query': exercise_txt
-    }
+    def _make_req(self, exercise_txt: str) -> dict | None:
+        headers = {
+            'x-app-id': self.app_id,
+            'x-app-key': self.api_key
+        }
 
-    try:
-        resp = requests.post(url=API_ENDPT, json=params, headers=headers, timeout=API_TIMEOUT)
-        resp.raise_for_status()
-        return resp.json()
-    except requests.exceptions.HTTPError as http_err:
-        logging.error(f'HTTP Error: {http_err} | Response: {resp.text}')
-    except requests.exceptions.ConnectionError as conn_err:
-        logging.error(f'Connection Error: {conn_err}')
-    except requests.exceptions.Timeout as time_err:
-        logging.error(f'Timeout Error: {time_err}')
-    except requests.exceptions.RequestException as req_err:
-        logging.error(f'Request Error: {req_err}')
-    except Exception as err:
-        logging.error(f'Unexpected Error: {err}')
+        params = {
+            'query': exercise_txt
+        }
+
+        try:
+            resp = requests.post(url=self.api_endpt, json=params, headers=headers, timeout=self.api_timeout)
+            resp.raise_for_status()
+            return resp.json()
+        except requests.exceptions.HTTPError as http_err:
+            logging.error(f'HTTP Error: {http_err} | Response: {resp.text}')
+        except requests.exceptions.ConnectionError as conn_err:
+            logging.error(f'Connection Error: {conn_err}')
+        except requests.exceptions.Timeout as time_err:
+            logging.error(f'Timeout Error: {time_err}')
+        except requests.exceptions.RequestException as req_err:
+            logging.error(f'Request Error: {req_err}')
+        except Exception as err:
+            logging.error(f'Unexpected Error: {err}')
+
         return None
 
+    def _clean_api_resp(self, resp: dict | None) -> list:
+        formatted_data = [['name', 'duration_min', 'met', 'nf_calories']]
 
-def clean_resp(resp: dict) -> list:
-    formatted_data = [['name', 'duration_min', 'met', 'nf_calories']]
+        if not resp:
+            formatted_data.append(['n/a', 'n/a', 'n/a', 'n/a'])
+        else:
+            for res in resp.get('exercises', []):
+                formatted_data.append([
+                    res.get('name'),
+                    res.get('duration_min'),
+                    res.get('met'),
+                    res.get('nf_calories')
+                ])
 
-    if not resp:
-        formatted_data.append(['n/a', 'n/a', 'n/a', 'n/a'])
-    else:
-        for res in resp.get('exercises', []):
-            formatted_data.append([
-                res.get('name'),
-                res.get('duration_min'),
-                res.get('met'),
-                res.get('nf_calories')
-            ])
+        return formatted_data
 
-    return formatted_data
+    def get_exercise_data(self, ex_in) -> list:
+        return self._clean_api_resp(self._make_req(ex_in))
+
 
 def main():
+    i_ex = NutritionixService()
     i_sheet = GSheetService()
 
     # ex_in = input('Input your exercise: ')
     ex_in = 'walked 0.25 km'
 
-    data_to_paste = clean_resp(make_request(ex_in))
+    data_to_paste = i_ex.get_exercise_data(ex_in)
 
     result = i_sheet.paste_data(data=data_to_paste, nw_sheet=False)
 
@@ -74,10 +86,5 @@ if __name__ == '__main__':
             logging.FileHandler(f'{cur_f_name}.log')
         }
     )
-
-    APP_ID = os.getenv('NUTRITION_APP_ID')
-    API_KEY = os.getenv('NUTRITION_API_KEY')
-    API_ENDPT = os.getenv('NUTRITION_API_ENDPT')
-    API_TIMEOUT = int(os.getenv('TIMEOUT_MS'))
 
     main()
