@@ -12,9 +12,13 @@ class GSheetService:
         self.scope = ['https://www.googleapis.com/auth/spreadsheets']
         self.service_acc_f = os.getenv('SERVICE_ACCOUNT_FILE')
         self.sheet_id = os.getenv('SHEET_ID')
-        self.service = self._init_client()
 
-    def _init_client(self):
+        if not self.service_acc_f or not self.sheet_id:
+            raise ValueError('Service Account and/or sheet id must be specified in the env file')
+
+        self.service = self.__init_client()
+
+    def __init_client(self):
         """
         initializes client and returns a build
         :return: resource
@@ -27,7 +31,28 @@ class GSheetService:
 
         return build('sheets', 'v4', credentials=creds)
 
-    def _get_sheet_name(self, nw_sheet: bool = False) -> str:
+    def fetch_data(self, sheet_range: str = 'Sheet1') -> list:
+        """
+        takes a sheet name
+         and tries to read said sheet and return said data in a list
+         except return empty list
+        :params sheet_range: str
+        :return: list
+        """
+
+        try:
+            result = (self.service.spreadsheets().values().get(
+                spreadsheetId=self.sheet_id,
+                range=f'{sheet_range}!A1:Z999'
+            ).execute()).get('values', [])
+
+            logging.info(f'Fetched {len(result)} rows')
+            return result
+        except Exception as err:
+            logging.error(f'Failed to read {sheet_range}: {err}')
+            return []
+
+    def __get_sheet_name(self, nw_sheet: bool = False) -> str:
         """
         takes a boolean val and
         returns a string for sheet name
@@ -35,11 +60,11 @@ class GSheetService:
         :return: str
         """
         if nw_sheet:
-            return f'{datetime.now().strftime('%Y%m%d-%H%M')}'
+            return f"{datetime.now().strftime('%Y%m%d-%H%M')}"
         else:
             return f'Sheet1'
 
-    def _create_sheet(self, sheet_name: str) -> str | None :
+    def __create_sheet(self, sheet_name: str) -> str | None:
         """
         takes in a string
         and uses that to create a new sheet
@@ -74,7 +99,7 @@ class GSheetService:
             logging.error(f'Failed to create new sheet: {err}')
             return None
 
-    def _get_data_range(self, data: list, sheet_name: str) -> str:
+    def __get_data_range(self, data: list, sheet_name: str) -> str:
         """
         takes data to paste and sheet_name
         and returns a name w/ range for sheet
@@ -92,17 +117,17 @@ class GSheetService:
         :return: str
         """
 
-        sheet_name = self._get_sheet_name(nw_sheet)
+        sheet_name = self.__get_sheet_name(nw_sheet)
 
         if nw_sheet:
-            self._create_sheet(sheet_name)
+            self.__create_sheet(sheet_name)
 
-        sheet_range = self._get_data_range(data, sheet_name)
+        sheet_range = self.__get_data_range(data, sheet_name)
+
 
         body = {
             'values': data
         }
-
         try:
             result = self.service.spreadsheets().values().update(
                 spreadsheetId=self.sheet_id,
@@ -121,14 +146,17 @@ class GSheetService:
 def main():
     i_sheet = GSheetService()
 
-    data_to_paste = [
-        ["Name", "Age", "City"],
-        ["Alice", 30, "New York"],
-        ["Bob", 25, "San Francisco"],
-        ["Charlie", 35, "Chicago"]
-    ]
+    # data_to_paste = [
+    #     ["Name", "Age", "City"],
+    #     ["Alice", 30, "New York"],
+    #     ["Bob", 25, "San Francisco"],
+    #     ["Charlie", 35, "Chicago"]
+    # ]
+    #
+    # i_sheet.paste_data(data_to_paste)
 
-    i_sheet.paste_data(data_to_paste)
+    res = i_sheet.fetch_data()
+    logging.info(res)
 
 
 if __name__ == '__main__':
