@@ -1,0 +1,15 @@
+body {
+  margin: 1.25rem;
+}
+
+#title {
+  text-align: center;
+}
+
+.external {
+  color: red;
+}
+
+p[draggable='False'] {
+  color: orange;
+}
