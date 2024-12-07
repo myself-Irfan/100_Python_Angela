@@ -22,14 +22,30 @@ class ChromeService:
         finally:
             self.driver.quit()
 
+    def wiki_count(self):
+        try:
+             self.driver.get(WIKI_URL)
+             art_cnt = self.driver.find_element(By.XPATH, value='//*[@id="js-link-box-en"]/small')
+             return art_cnt.text
+        except Exception as err:
+            logging.error(f'Unexpected error: {err}')
+        finally:
+            self.driver.quit()
+
 
 def main():
     # keep browser open after code
     i_chrome = ChromeService()
 
-    a_price = i_chrome.amazon_price()
-    if a_price:
-        logging.info(f'Retrieved Price: {a_price}')
+    # a_price = i_chrome.amazon_price()
+    # if a_price:
+    #     logging.info(f'Retrieved Price: {a_price}')
+    # else:
+    #     logging.warning('N/A')
+
+    art_cnt = i_chrome.wiki_count()
+    if art_cnt:
+        logging.info(f'Retrieved Price: {art_cnt}')
     else:
         logging.warning('N/A')
 
@@ -43,5 +59,6 @@ if __name__ == '__main__':
     )
 
     AMAZON_URL = 'https://www.amazon.com/dp/B075CYMYK6?psc=1&ref_=cm_sw_r_cp_ud_ct_FM9M699VKHTT47YD50Q6'
+    WIKI_URL = 'https://www.wikipedia.org/'
 
     main()
