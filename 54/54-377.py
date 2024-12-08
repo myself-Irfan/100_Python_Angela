@@ -2,7 +2,6 @@ import logging
 import os.path
 from flask import Flask, jsonify, Response, make_response
 
-
 app = Flask(__name__)
 
 
@@ -14,12 +13,21 @@ def greet(name: str = 'User') -> Response:
     return make_response(jsonify(message=f'Hello {name}'), 200)
 
 
-@app.route('/bye', methods=['GET'])
-@app.route('/bye/<name>', methods=['GET'])
-def bye(name: str = 'User') -> Response:
-    if not name.isalpha():
-        return make_response(jsonify(message=f'Invalid input {name}'), 400)
-    return make_response(jsonify(message=f'Farewell {name}'), 200)
+@app.route('/age', methods=['GET'])
+@app.route('/age/<name>/<int:age>', methods=['GET'])
+def say_age(name: str = 'User', age: int = 18) -> Response:
+    try:
+        if not name.isalpha():
+            raise ValueError(f'Name must contain alphabetic only input')
+        if not age.is_integer():
+            raise ValueError(f'Age must only contain numbers')
+        if age <= 0:
+            raise ValueError(f'Age must be greater than 0')
+        return make_response(jsonify(message=f'Dear {name}, you are {age} years old.'), 200)
+    except ValueError as val_err:
+        return make_response(jsonify(message=f'Invalid input: {val_err}'), 400)
+    except Exception as err:
+        return make_response(jsonify(message=f'Unexpected Error: {err}'), 500)
 
 
 def setup_logging():
