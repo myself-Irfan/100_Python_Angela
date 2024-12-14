@@ -1,5 +1,5 @@
 import os.path
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import logging
 import requests
 
@@ -53,6 +53,15 @@ def show_post(index: int):
         return 'Post not found', 404
 
     return render_template('post.html', post=post)
+
+
+@app.route('/contact-us', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        data = request.form
+        logging.info(data)
+        return render_template('contact.html', msg_sent=True)
+    return render_template('contact.html', msg_sent=False)
 
 
 def setup_logging():

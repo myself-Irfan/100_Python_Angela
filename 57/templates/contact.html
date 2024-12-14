@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    {% if msg_sent %}
+    <h1>Successfully sent message</h1>
+    {% else %}
+    <h1>Contact Me</h1>
+    <p>Have a question? I can answer</p>
+    <form id="contactForm" name="sentMessage" action="{{ url_for('contact') }}" method="POST">
+
+        <div class="form-floating mb-3">
+            <input type="text"
+                   class="form-control"
+                   id="name" name="name"
+                   placeholder="Your Name"
+                   required
+            />
+            <label for="name">Name</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="email"
+                   class="form-control"
+                   id="email"
+                   name="email"
+                   placeholder="Your Email"
+                   required
+                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+            />
+            <label for="email">Email</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="tel"
+                   class="form-control"
+                   id="phone"
+                   name="phone"
+                   placeholder="Your Contact Number"
+                   required
+            />
+            <label for="phone">Contact Number</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <textarea class="form-control"
+                      id="message"
+                      name="message"
+                      placeholder="Your Message"
+                      style="height: 10rem"
+                      required>
+            </textarea>
+            <label for="message">Message</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    {% endif %}
+</div>
+
+{% endblock %}
