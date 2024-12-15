@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+Coffee&Wifi
+{% endblock %}
+
+{% block content %}
+
+<div class="container text-center">
+    <h1 class="display-4">
+        ☕️ Coffee & Wifi 💻
+    </h1>
+    <p class="lead">
+        Wish to work in a cafe but need power and wifi?
+    </p>
+    <hr>
+    <p>
+        You've found the right place! Checkout our collection of cafes with data on power socket availability, wifi
+        speed and coffee quality.
+    </p>
+    <a class='btm btn-warning btn-lg' href="{{ url_for('cafes') }}" role="button">Show Me!</a>
+</div>
+
+{% endblock %}

@@ -1,6 +1,4 @@
 import os.path
-from ensurepip import bootstrap
-
 from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_wtf import FlaskForm
