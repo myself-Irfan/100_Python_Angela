@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Log In</h1>
+<form method="POST" action="{{ url_for('login') }}">
+    {{ form.csrf_token }}
+    <div class="form-floating mb-3">
+        <input type="text"
+               class="form-control"
+               id="email" name="email"
+               placeholder="Your email..."
+        />
+        <label for="email">
+            {{ form.email.label }}
+        </label>
+        {% for err in form.email.errors %}
+        <span style="color: red">
+            {{ err }}
+        </span>
+        {% endfor %}
+    </div>
+    <div class="form-floating mb-3">
+        <input type="password"
+               class="form-control"
+               id="password" name="password"
+               placeholder="Your password..."
+        />
+        <label for="password">
+            {{ form.password.label }}
+        </label>
+        {% for err in form.password.errors %}
+        <span style="color: red">
+            {{ err }}
+        </span>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+
+</form>
+{% endblock %}
