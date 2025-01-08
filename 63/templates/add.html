@@ -1,0 +1,42 @@
+{%extends "base.html" %}
+
+{% block content %}
+
+<form id="add-book-form">
+    <div class="form-floating mb-3">
+        <input type="text"
+               class="form-control"
+               id="book-name" name="title"
+               placeholder="Enter book name..."
+               required
+        />
+        <label for="book-name">Book Name</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input type="text"
+               class="form-control"
+               id="book-author" name="author"
+               placeholder="Enter author name..."
+               required
+        />
+        <label for="book-author">Book Author</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select class='form-select' id='book-rating' name="rating">
+            <option value="" selected disabled>Choose a rating...</option>
+            <option value="1">📚</option>
+            <option value="2">📚📚</option>
+            <option value="3">📚📚📚</option>
+            <option value="4">📚📚📚📚</option>
+            <option value="5">📚📚📚📚📚</option>
+        </select>
+        <label for="book-rating">Rating</label>
+    </div>
+
+    <button type="button" class="btn btn-primary" onClick="addBook()">Submit</button>
+</form>
+
+<script src="{{ url_for('static', filename='js/add.js') }}"></script>
+{% endblock %}

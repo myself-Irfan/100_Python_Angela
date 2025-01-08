@@ -50,7 +50,7 @@ class CafeForm(FlaskForm):
     )
     coffee_rating = SelectField(
         'Coffee Rating',
-        choices=[('1', '☕'), ('2', '☕☕'), ('3', '☕☕☕'), ('4', '☕☕☕☕'), ('5', '☕☕☕☕☕')],
+        choices=[('1', '☕️'), ('2', '☕️☕️'), ('3', '☕️☕️☕️'), ('4', '☕️☕️☕️☕️'), ('5', '☕️☕️☕️☕️☕️')],
         coerce=int,
         validators=[DataRequired()]
     )
