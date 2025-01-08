@@ -1,0 +1,26 @@
+{%extends "base.html" %}
+
+{% block content %}
+
+<h1>My Library</h1>
+
+<table id='books-table' class="table table-primary table-bordered table-hover">
+    <thead>
+    <tr>
+        <th>No</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Rating</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
+<button class="btn btn-primary" onclick="window.location.href='/add'">Add Book</button>
+
+<script src="{{ url_for('static', filename='js/get.js') }}"></script>
+
+{% endblock %}
