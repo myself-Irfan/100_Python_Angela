@@ -86,7 +86,6 @@ def delete(book_id: int):
 
     return jsonify({'message': 'Book deleted successfully'})
 
-# render templates
 
 @main.route('/')
 def index():
