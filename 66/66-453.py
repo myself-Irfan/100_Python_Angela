@@ -10,6 +10,8 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cafes.db"
 app.config["UPLOAD_FOLDER"] = "static/uploads"
 
+db.init_app(app)
+
 
 class Cafe(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -54,7 +56,7 @@ def get_all_cafe():
         return jsonify({"message": f'Database error: {str(e)}'}), 500
     else:
         if not cafes:
-            return jsonify({'message': 'No cafe found'}), 204
+            return jsonify({'message': 'No cafe found'}), 404
         else:
             return jsonify([cafe.to_dict() for cafe in cafes]), 200
 
@@ -67,7 +69,7 @@ def get_search_cafe(location: str):
         return jsonify({'message': f'Database error {str(err)}'}), 500
     else:
         if not cafes:
-            return jsonify({'message': f'No cafe found at {location}'}), 204
+            return jsonify({'message': f'No cafe found at {location}'}), 404
         else:
             return jsonify([cafe.to_dict() for cafe in cafes]), 200
 
@@ -90,7 +92,7 @@ def add_cafe():
         missing_fields = required_fields - data.keys()
 
         if missing_fields:
-            return jsonify({'message': f'Missing fields {" ,".join(missing_fields)}'}), 400
+            return jsonify({'message': f'Missing fields -> {", ".join(missing_fields)}.'}), 400
         else:
             new_cafe = Cafe(
                 name=data['name'],
@@ -157,10 +159,6 @@ def delete_cafe(id: int):
             return jsonify({'message': f'Database error: {db_err}'}), 500
         else:
             return jsonify({'message': 'Cafe deleted successfully'}), 200
-
-
-def main():
-    pass
 
 
 if __name__ == '__main__':
