@@ -52,7 +52,7 @@ def show_post(index: int):
         logging.warning(f'Post with index -> {index} not found')
         return 'Post not found', 404
 
-    return render_template('post.html', post=post)
+    return render_template('read_post.html', post=post)
 
 
 @app.route('/contact-us', methods=['GET', 'POST'])

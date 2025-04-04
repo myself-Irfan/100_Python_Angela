@@ -2,27 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('create-post-form');
     const alertPlaceholder = document.getElementById('alert-placeholder');
 
-    function showAlert(message, type) {
-        const alertElement = document.createElement('div');
-        alertElement.classList.add('alert', `alert-${type}`, 'alert-dismissible', 'alert', 'fade', 'show');
-        alertElement.role = 'alert';
-        alertElement.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        alertPlaceholder.appendChild(alertElement);
-    }
-
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
         const formData = new FormData(form);
         const data = {
-            title: formData.get('title'),
-            subtitle: formData.get('subtitle'),
-            body: formData.get('body'),
-            author: formData.get('author')
+            title: formData.get('title').trim(),
+            body: formData.get('body').trim(),
+            author: formData.get('author').trim()
         };
+
+        const subtitle = formData.get('subtitle')?.trim();
+        if (subtitle) {
+            data.subtitle = subtitle;
+        }
 
         fetch('/api/post', {
             method: 'POST',
@@ -40,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
-            showAlert(data.message, 'success');
+            alert(data.message);
             form.reset();
         })
         .catch(error => {
-            showAlert(error.message, 'danger');
+            alert(error.message);
         });
     });
 });
