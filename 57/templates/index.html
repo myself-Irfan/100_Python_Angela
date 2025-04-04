@@ -16,23 +16,12 @@
 <div class="container py-4">
     <h2>My Blogs</h2>
     <hr>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for post in posts %}
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0">
-                <img src="https://placehold.co/300x150" class="card-img-top" alt="Placeholder image">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ post.title }}</h5>
-                    <h6 class="card-subtitle text-muted mb-3">{{ post.subtitle }}</h6>
-                    <div class="mt-auto">
-                        <a href="{{ url_for('show_post', index=post.id) }}" class="btn btn-primary">Read</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+    <div id="posts-container" class="row row-cols-1 row-cols-md-3 g-4">
+
     </div>
 </div>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
 {% endblock %}
 
