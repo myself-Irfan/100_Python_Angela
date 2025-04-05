@@ -134,3 +134,7 @@ def write_blogpost():
 @main.route('/read_post/<int:post_id>')
 def read_post(post_id: int):
     return render_template('read_post.html', post_id=post_id)
+
+@main.route('/edit_post/<int:post_id>')
+def edit_post(post_id: int):
+    return render_template('edit_post.html', post_id=post_id)

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h2>Edit Post</h2>
+    <hr>
+
+    <form id="edit-post-form" class="mt-4" data-post-id="{{ post_id }}">
+        <div class="mb-3 form-floating">
+            <input type="text" class="form-control" id="title" name="title" required>
+            <label for="title">Title</label>
+        </div>
+        <div class="mb-3 form-floating">
+            <input type="text" class="form-control" id="subtitle" name="subtitle">
+            <label for="subtitle">Subtitle (Optional)</label>
+        </div>
+        <div class="mb-3 form-floating">
+            <textarea class="form-control" id="body" name="body" rows="5" required></textarea>
+            <label for="body">Content</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <div id="alert-placeholder" class="mt-3"></div>
+</div>
+
+<script src="{{ url_for('static', filename='js/edit_post.js') }}"></script>
+
+{% endblock %}
