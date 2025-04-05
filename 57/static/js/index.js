@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
                                 <h5 class="card-title">${post.title}</h5>
                                 <h6 class="card-subtitle text-muted mb-3">${post.subtitle}</h6>
                                 <div class="mt-auto">
-                                    <a href="/post/${post.id}" class="btn btn-primary">Read</a>
+                                    <a href="/read_post/${post.id}" class="btn btn-primary">Read</a>
                                 </div>
                             </div>
                         </div>

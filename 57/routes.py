@@ -130,3 +130,7 @@ def index():
 @main.route('/create_post')
 def write_blogpost():
     return render_template('create_post.html')
+
+@main.route('/read_post/<int:post_id>')
+def read_post(post_id: int):
+    return render_template('read_post.html', post_id=post_id)

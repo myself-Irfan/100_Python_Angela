@@ -5,10 +5,10 @@
 <div class="container-fluid p-0 mb-4">
     <img src="https://placehold.co/1280x450" class="card-img-top" alt="Placeholder image">
 </div>
-<div class="container py-2">
-    <h1>{{ post.title }}</h1>
-    <h2>{{ post.subtitle }}</h2>
-    <p>{{ post.body }}</p>
+<div class="container py-2" id="post-content" data-post-id="{{ post_id }}">
+
 </div>
+
+<script src="{{ url_for('static', filename='js/read_post.js') }}"></script>
 
 {% endblock %}
