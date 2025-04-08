@@ -3,9 +3,9 @@ from flask import Blueprint, request, jsonify, render_template, redirect, url_fo
 from marshmallow import ValidationError
 
 from auth_app import db
-
 from model import User
 from schemas import UserSchema
+from security import hash_pwd, verify_pwd
 
 
 userapp = Blueprint('userapp', __name__)
@@ -22,10 +22,13 @@ def register():
         try:
             user_data = user_schema.load(request.form)
 
+            hashed_pwd = hash_pwd(user_data.get('password'))
+            logging.info(f'Hashed password: {hashed_pwd}')
+
             new_user = User(
                 email=user_data.get('email'),
                 name=user_data.get('name'),
-                password=user_data.get('password')
+                password=hashed_pwd
             )
 
             db.session.add(new_user)
@@ -52,8 +55,24 @@ def register():
         data=request.form
     )
 
-@userapp.route('/login')
+@userapp.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        pwd = request.form.get('password')
+
+        user = User.query.filter_by(email=email).first()
+        logging.info(f'Fetched user: {user.email} {user.password}')
+
+        if user:
+            logging.info('User Exists! Attempting to verify password')
+            if verify_pwd(user.password, pwd):
+                logging.info('Logged in!!')
+            else:
+                logging.info('Incorrect pwd')
+        else:
+            logging.info('User does not exist!')
+
     return render_template('login.html')
 
 @userapp.route('/secrets')
