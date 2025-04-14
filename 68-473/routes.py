@@ -1,5 +1,5 @@
 import logging
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, send_from_directory
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, send_from_directory, session, flash
 from marshmallow import ValidationError
 
 from auth_app import db
@@ -36,7 +36,7 @@ def register():
 
             return redirect(
                 url_for(
-                    'userapp.secrets',
+                    'userapp.login',
                     name=new_user.name
                 )
             )
@@ -67,22 +67,31 @@ def login():
         if user:
             logging.info('User Exists! Attempting to verify password')
             if verify_pwd(user.password, pwd):
-                logging.info('Logged in!!')
+                session['user_name'] = user.name
+                flash('Successfully logged in!', 'success')
+                return redirect(url_for('userapp.secrets'))
             else:
+                flash("Incorrect password", 'warning')
                 logging.info('Incorrect pwd')
         else:
-            logging.info('User does not exist!')
+            logging.info('User does not exist!', 'warning')
 
     return render_template('login.html')
 
 @userapp.route('/secrets')
 def secrets():
-    name = request.args.get('name')
-    return render_template('secrets.html', name=name)
+    usr_name = session.get('user_name')
+    if usr_name:
+        return render_template('secrets.html', name=session['user_name'])
+    else:
+        logging.info('User name not found in session')
+        return render_template(url_for('userapp.login'))
 
 @userapp.route('/logout')
 def logout():
-    pass
+    session.clear()
+    flash('You have logged out', 'info')
+    return redirect(url_for('userapp.login'))
 
 @userapp.route('/download')
 def download():
