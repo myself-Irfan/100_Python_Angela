@@ -28,3 +28,16 @@ class Post(db.Model):
 
     def __repr__(self):
         return f'<Post {self.id} - {self.title}>'
+
+class User(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    email: Mapped[int] = mapped_column(String(50), unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(String(20), nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    create_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(bd_timezone)
+    )
+
+    def __repr__(self):
+        return f'<User {self.id} - {self.name}>'

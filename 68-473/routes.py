@@ -74,7 +74,7 @@ def login():
                 flash("Incorrect password", 'warning')
                 logging.info('Incorrect pwd')
         else:
-            logging.info('User does not exist!', 'warning')
+            logging.info('User does not exist!')
 
     return render_template('login.html')
 

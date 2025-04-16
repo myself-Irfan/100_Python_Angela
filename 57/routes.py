@@ -6,7 +6,7 @@ from model import Post, db
 from schemas import PostSchema
 
 
-main = Blueprint('main', __name__)
+main = Blueprint('main', __name__, url_prefix='/')
 post_schema = PostSchema()
 posts_schema = PostSchema(many=True)
 
