@@ -1,6 +1,5 @@
 import logging
-from flask import Blueprint, request, jsonify, render_template
-from jinja2.idtracking import VAR_LOAD_ALIAS
+from flask import Blueprint, request, jsonify, render_template, session
 from marshmallow.exceptions import ValidationError
 
 from model import db, User
@@ -10,6 +9,7 @@ from security import hash_pwd, verify_pwd
 
 userapp = Blueprint('userapp', __name__, url_prefix='/user')
 
+# api
 
 @userapp.route('/api/register', methods=['POST'])
 def register_user():
@@ -56,6 +56,7 @@ def login_user():
         if cur_usr_db:
             logging.info('User exists! Attempting to verify password')
             if verify_pwd(cur_usr_db.password, cur_usr_in.password):
+                session['user_id'] = cur_usr_db.id
                 return jsonify({'message': f'User-{cur_usr_db.name} logged in successfully'}), 200
             else:
                 logging.info('Incorrect password')
@@ -64,4 +65,11 @@ def login_user():
             logging.info('User does not exist')
             return jsonify({'error': f'{cur_usr_in.email} does not exist'}), 404
 
+@userapp.route('/api/logout', methods=['POST'])
+def logout_user():
+    if 'user_id' in session:
+        session.clear()
+        return jsonify({'message': 'User logged out successfully'}), 200
+    else:
+        return jsonify({'error': 'User not logged in'}), 400
 

@@ -7,3 +7,6 @@ if __name__ == '__main__':
     setup_logging()
     app = init_app()
     app.run(debug=True)
+
+    # TODO Use Flask-login
+    # TODO Use JWT

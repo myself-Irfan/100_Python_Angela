@@ -4,6 +4,7 @@ from marshmallow.exceptions import ValidationError
 
 from model import Post, db
 from schemas import PostSchema
+from userapp_utils import login_required_api
 
 
 main = Blueprint('main', __name__, url_prefix='/')
@@ -13,6 +14,7 @@ posts_schema = PostSchema(many=True)
 # api
 
 @main.route('/api/get', methods=['GET'])
+@login_required_api
 def get_post():
     """
     API to get all posts or a specific post by ID (via query param).
@@ -56,6 +58,7 @@ def get_post():
         return jsonify({'error': 'Error occurred while fetching posts'}), 500
 
 @main.route('/api/post', methods=['POST'])
+@login_required_api
 def create_post():
     """
     create a new post
@@ -76,6 +79,7 @@ def create_post():
         return jsonify({'message': f'Post created successfully: id-{new_post.id}'})
 
 @main.route('/api/delete/<int:post_id>', methods=['DELETE'])
+@login_required_api
 def delete_post(post_id: int):
     try:
         post = Post.query.get(post_id)
@@ -94,6 +98,7 @@ def delete_post(post_id: int):
         return jsonify({'message': 'Post deleted successfully'}), 200
 
 @main.route('/api/update/<int:post_id>', methods=['PUT', 'PATCH'])
+@login_required_api
 def update_post(post_id: int):
     try:
         post = Post.query.get(post_id)

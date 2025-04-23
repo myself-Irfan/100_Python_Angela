@@ -3,8 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
 import logging
-
 from werkzeug.exceptions import MethodNotAllowed
+
 
 db = SQLAlchemy()
 
@@ -45,7 +45,7 @@ def init_app():
             'allowed': allowed
         })
 
-    from routes import main
+    from blogapp_routes import main
     from userapp_routes import userapp
 
     app.register_blueprint(main)
