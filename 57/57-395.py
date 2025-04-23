@@ -10,3 +10,4 @@ if __name__ == '__main__':
 
     # TODO Use Flask-login
     # TODO Use JWT
+    # TODO proper response format

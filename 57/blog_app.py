@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import os
 import logging
 from werkzeug.exceptions import MethodNotAllowed
+from flask_jwt_extended import JWTManager
+from datetime import timedelta
 
 
 db = SQLAlchemy()
@@ -31,6 +33,12 @@ def init_app():
 
     app = Flask(__name__)
     app.secret_key = 'iblogpostapp'
+
+    app.config['JWT_SECRET_KEY'] = app.secret_key
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=10)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(minutes=30)
+
+    jwt = JWTManager(app)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blogs-collection.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
