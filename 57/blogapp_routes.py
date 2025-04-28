@@ -24,10 +24,16 @@ def get_post():
             post = Post.query.get(post_id)
         except Exception as err:
             logging.error(f'Error querying post with id-{post_id}: {str(err)}')
-            return {'error': f'Error fetching post with id: {post_id}'}, 500
+            return {
+                'status': 'error',
+                'message': f'Error fetching post with id: {post_id}'
+            }, 500
         else:
             if not post:
-                return {'message': f'No post found with id-{post_id}'}, 404
+                return {
+                    'status': 'warning',
+                    'message': f'No post found with id-{post_id}'
+                }, 404
 
             return post_schema.dump(post), 200
 
@@ -36,10 +42,16 @@ def get_post():
             all_posts = Post.query.all()
         except Exception as err:
             logging.error(f'Error querying post: {str(err)}')
-            return {'error': 'Error fetching posts'}, 500
+            return {
+                'status': 'error',
+                'message': 'Error fetching posts'
+            }, 500
         else:
             if not all_posts:
-                return {'message': 'No post found'}, 404
+                return {
+                    'status': 'warning',
+                    'message': 'No post found'
+                }, 404
 
             return posts_schema.dump(all_posts), 200
 
@@ -55,9 +67,13 @@ def get_post():
         return jsonify(response), code
     except Exception as err:
         logging.error(f'Error while fetching post: {str(err)}')
-        return jsonify({'error': 'Error occurred while fetching posts'}), 500
+        return jsonify({
+            'status': 'error',
+            'message': 'Error occurred while fetching posts'
+        }), 500
 
 @main.route('/api/post', methods=['POST'])
+@jwt_required()
 def create_post():
     """
     create a new post
@@ -73,17 +89,27 @@ def create_post():
     except Exception as err:
         db.session.rollback()
         logging.error(f'An error occurred while creating post: {str(err)}')
-        return jsonify({'error': 'An error occurred while creating post'}), 500
+        return jsonify({
+            'status': 'error',
+            'message': 'An error occurred while creating post'
+        }), 500
     else:
-        return jsonify({'message': f'Post created successfully: id-{new_post.id}'})
+        return jsonify({
+            'status': 'success',
+            'message': f'Post created successfully: id-{new_post.id}'
+        }), 201
 
 @main.route('/api/delete/<int:post_id>', methods=['DELETE'])
+@jwt_required()
 def delete_post(post_id: int):
     try:
         post = Post.query.get(post_id)
 
         if not post:
-            return jsonify({'error': f'No post found with id-{post_id}'}), 404
+            return jsonify({
+                'status': 'warning',
+                'message': f'No post found with id-{post_id}'
+            }), 404
 
         db.session.delete(post)
         db.session.commit()
@@ -91,11 +117,18 @@ def delete_post(post_id: int):
     except Exception as err:
         db.session.rollback()
         logging.error(f'Error while deleting post with id-{post_id}: {str(err)}')
-        return jsonify({'error': f'An error occurred while deleting post with id-{post_id}'}), 500
+        return jsonify({
+            'status': 'error',
+            'message': f'An error occurred while deleting post with id-{post_id}'
+        }), 500
     else:
-        return jsonify({'message': 'Post deleted successfully'}), 200
+        return jsonify({
+            'status': 'success',
+            'message': 'Post deleted successfully'
+        }), 200
 
 @main.route('/api/update/<int:post_id>', methods=['PUT', 'PATCH'])
+@jwt_required()
 def update_post(post_id: int):
     try:
         post = Post.query.get(post_id)
@@ -105,7 +138,10 @@ def update_post(post_id: int):
         data = request.json
 
         if not data:
-            return jsonify({'message': 'No data provided'}), 400
+            return jsonify({
+                'status': 'warning',
+                'message': 'No data provided'
+            }), 400
 
         validated_data = post_schema.load(data, partial=True)
 
@@ -118,10 +154,16 @@ def update_post(post_id: int):
     except Exception as db_err:
         db.session.rollback()
         logging.error(f'Failed to update post-{post_id}: {str(db_err)}')
-        return jsonify({'error': 'Error updating Post'}), 500
+        return jsonify({
+            'status': 'error',
+            'message': 'Error updating Post'
+        }), 500
     else:
         logging.info(f'Updated fields for post-{post_id}: {list(validated_data.keys())}')
-        return jsonify({'message': 'Post updated successfully'}), 200
+        return jsonify({
+            'status': 'success',
+            'message': 'Post updated successfully'
+        }), 200
 
 # template
 

@@ -1,7 +1,11 @@
 document.addEventListener('DOMContentLoaded', ()=> {
     const container = document.getElementById('posts-container')
 
-    fetch('/api/get')
+    fetch('/api/get' , {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
     .then(res => {
         if (!res.ok) {
             return res.json().then(data => {

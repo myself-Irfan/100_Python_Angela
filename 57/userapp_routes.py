@@ -110,3 +110,7 @@ def refresh_token():
     return jsonify(access_token=new_access_token)
 
 # template
+
+@userapp.route('/login')
+def login():
+    return render_template('login.html')

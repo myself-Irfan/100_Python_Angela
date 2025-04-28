@@ -7,7 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    fetch(`/api/get?id=${postId}`)
+    fetch(`/api/get?id=${postId}`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
     .then(res => {
         if (!res.ok) {
             return res.json().then(data => {
@@ -36,7 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch(`/api/update/${post.id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                 },
                 body: JSON.stringify(updatedPost)
             })

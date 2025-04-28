@@ -2,7 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('post-content');
     const postId = container.dataset.postId;
 
-    fetch(`/api/get?id=${postId}`)
+    fetch(`/api/get?id=${postId}`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+    })
     .then(res => {
         if (!res.ok) {
             return res.json().then(data => {
@@ -30,6 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (confirm('Are you sure you want to delete this post?')){
                     fetch(`/api/delete/${postId}`, {
                         method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        }
                     })
                     .then(res => res.json())
                     .then(data => {
