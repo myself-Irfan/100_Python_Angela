@@ -23,14 +23,18 @@ async function fetchWithAuth(url, options = {}) {
 
 async function refreshToken() {
     try {
-        const res = await fetch('/refresh', {
+        const res = await fetch('/user/api/refresh', {
             method: 'POST',
             credentials: 'include'
         });
-        if !(res.ok) return false;
-
+        if !(res.ok) {
+            return false;
+        }
         const data = await res.json();
+
         localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.access_token);
+
         return true
     } catch {
         return false;

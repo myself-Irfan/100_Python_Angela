@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
     const submitBtn = form.querySelector('button[type="submit"]')
+    const ogTxt = submitBtn.textContent;
 
     form.addEventListener('submit', async function (event) {
         event.preventDefault();
@@ -10,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const password = formData.get('password');
 
         submitBtn.disabled = true
-        const ogTxt = submitBtn.textContent;
         submitBtn.textContent = 'Logging in...'
 
         try {
@@ -23,25 +23,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 credentials: 'include'
             });
 
-            if (response.ok)  {
-                const data = await response.json();
-                localStorage.setItem('access_token', data.access_token);
+            const data = await response.json();
 
+            if (response.ok)  {
+                localStorage.setItem('access_token', data.data.access_token);
                 window.location.href = '/';
             } else {
                 const errorData = await response.json();
                 alert(errorData.message || 'Login Failed');
 
-                submitBtn.disabled = false;
-                submitBtn.textContent = ogTxt;
+                resetBtn();
             }
         } catch (error) {
             console.error('Login error: ', error);
             alert('An unexpected error occurred. Please try again later.')
 
-            submitBtn.disabled = false;
-            submitBtn.textContent = ogTxt;
+            resetBtn();
         }
 
     });
+
+    function resetBtn() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = ogTxt;
+    }
+
 });

@@ -114,3 +114,7 @@ def refresh_token():
 @userapp.route('/login')
 def login():
     return render_template('login.html')
+
+@userapp.route('/register')
+def register():
+    return render_template('register.html')
