@@ -4,39 +4,51 @@ function getAccessToken() {
 
 async function fetchWithAuth(url, options = {}) {
     if (!options.headers) options.headers = {};
-    options.headers['Authorization'] = 'Bearer ' + getAccessToken();
+    options.headers['Authorization'] = `Bearer ${getAccessToken()}`;
 
-    let response = await fetch(url, options);
+    try {
+        let response = await fetch(url, options);
 
-    if (response.status === 401){
-        const refreshed = await refreshToken();
-        if (refreshed) {
-            options.headers['Authorization'] = 'Bearer ' + getAccessToken();
-            response = await fetch(url, options);
-        } else {
-            window.location.href = '/login';
+        if (response.status === 401){
+            const refreshed = await refreshToken();
+            if (refreshed) {
+                options.headers['Authorization'] = `Bearer ${getAccessToken()}`;
+                response = await fetch(url, options);
+            } else {
+                window.location.href = 'user/login';
+                return null;
+            }
         }
-    }
 
-    return response;
+        return response;
+    } catch (error) {
+        console.error(`Fetch error for ${url}: ${error}`);
+        throw error;
+    }
 }
 
 async function refreshToken() {
     try {
-        const res = await fetch('/user/api/refresh', {
+        const res = await fetch('/user/api/refresh-token', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`
+            },
             credentials: 'include'
         });
-        if !(res.ok) {
+
+        if (!res.ok) {
+            console.error(`Token refresh failed: ${res.status}`);
             return false;
         }
-        const data = await res.json();
 
+        const data = await res.json();
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('refresh_token', data.access_token);
-
         return true
-    } catch {
+    } catch (error) {
+        console.error(`Error refreshing token: ${error}`);
         return false;
     }
 }

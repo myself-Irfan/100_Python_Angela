@@ -1,66 +1,64 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('edit-post-form');
-    const postId = form ? form.dataset.postId : null;
+    const postId = form?.dataset.postId;
+    const submitBtn = form?.querySelector('button[type="submit"]');
+    const alertPlaceholder = document.getElementById('alert-placeholder');
 
-    if (!postId) {
-        alert('Post ID not found.');
+    if (!form || !postId || !submitBtn) {
+        console.error('Form, postId or submit button not found');
+        renderAlert(alertPlaceholder, 'Unable to load edit form', 'danger');
         return;
     }
 
-    fetch(`/api/get?id=${postId}`, {
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(data => {
-                const message = data.message || data.error || 'Unknown error';
-                const statusCode = res.status;
+    const ogTxt = submitBtn.textContent;
 
-                throw { message, statusCode };
-            });
-        }
-        return res.json();
-    })
+    getPost(postId)
     .then(post => {
-        document.getElementById('title').value = post.title;
+        document.getElementById('title').value = post.title || '';
         document.getElementById('subtitle').value = post.subtitle || '';
         document.getElementById('body').value = post.body || '';
 
-        form.addEventListener('submit', (event) => {
+        form.addEventListener('submit', async event => {
             event.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
 
             const updatedPost = {
-                title: document.getElementById('title').value,
-                subtitle: document.getElementById('subtitle').value,
-                body: document.getElementById('body').value
+                title: document.getElementById('title').value.trim(),
+                subtitle: document.getElementById('subtitle').value.trim() || undefined,
+                body: document.getElementById('body').value.trim() || undefined
             };
 
-            fetch(`/api/update/${post.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                },
-                body: JSON.stringify(updatedPost)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.message) {
-                    alert('Post updated successfully');
-                    window.location.href = `/read_post/${post.id}`;
-                } else {
-                    alert('Failed to update post. Please try again later!');
-                }
-            })
-            .catch(err => {
-                alert('An error occurred while attempting to update the post. Please try again later');
-            });
+            if (!updatedPost.title || !updatedPost.body) {
+                renderAlert(alertPlaceholder, 'Title and Body are required', 'warning');
+                submitBtn.disabled = false;
+                submitBtn.textContent = ogTxt;
+                return;
+            }
+
+            try {
+                await updatePost(postId, updatedPost);
+                alert('Post updated successfully');
+                window.location.href = `/read_post/${postId}`;
+            } catch (err) {
+                console.error('Update error: ', err);
+                renderAlert(
+                    alertPlaceholder,
+                    err.messages || 'An error occurred while updating the post',
+                    'danger'
+                )
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = ogTxt;
+            }
         });
     })
     .catch(err => {
-        alert('An error occurred while fetching post data.');
-        console.error(err);
+        console.error('Fetch error: ', err);
+        renderAlert(
+            alertPlaceholder,
+            err.messages || 'An error occurred while loading updated post',
+            err.message.includes('No post') ? 'warning' : 'danger'
+        );
     });
 });

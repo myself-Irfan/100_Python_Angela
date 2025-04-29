@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %} iBlog - Create {% endblock %}
+
 {% block content %}
 
 <div class="container mt-5">
@@ -28,6 +30,10 @@
 
     <div id="alert-placeholder" class="mt-3"></div>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
 
 <script src="{{ url_for('static', filename='js/create_post.js') }}"></script>
 
