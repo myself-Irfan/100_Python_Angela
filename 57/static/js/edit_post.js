@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('title').value = post.title || '';
             document.getElementById('subtitle').value = post.subtitle || '';
             document.getElementById('body').value = post.body || '';
-            doc
+            document.getElementById('author-display').value = post.author.name || 'N/A';
         } catch (error) {
             console.error(`Failed to load post: ${error}`);
             clearLoading(form);
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         const data = {
             title: formData.get('title').trim(),
-            subtitle: formData.get('subtitle')?.trim() || null;
+            subtitle: formData.get('subtitle')?.trim() || null,
             body: formData.get('body').trim()
         };
 
