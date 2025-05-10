@@ -59,3 +59,25 @@ function showLoading(container) {
 function clearLoading(container) {
     container.innerHTML = '';
 }
+
+function renderEditPostForm(post, container) {
+    container.innerHTML = `
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="${post.title || ''}" required>
+        </div>
+        <div class="mb-3">
+            <label for="subtitle" class="form-label">Subtitle</label>
+            <input type="text" class="form-control" id="subtitle" name="subtitle" value="${post.subtitle || ''}">
+        </div>
+        <div class="mb-3">
+            <label for="body" class="form-label">Body</label>
+            <textarea class="form-control" id="body" name="body" rows="6" required>${post.body || ''}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="author" class="form-label">Image URL</label>
+            <input type="text" readonly id="author" class="form-control" value="${post.author.name || 'N/A'}">
+        </div>
+        <button type="submit" class="btn btn-success">Update Post</button>
+    `;
+}

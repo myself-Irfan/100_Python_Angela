@@ -164,7 +164,7 @@ def delete_post(post_id: int):
                 'status': 'warning',
                 'message': f'No post found with id-{post_id}'
             }), 404
-        if post.author_id != user_id:
+        if int(post.author_id) != int(user_id):
             logging.warning(f'Unauthorized delete attempt by: {user_id}')
             return jsonify({
                 'status': 'warning',
@@ -198,6 +198,7 @@ def update_post(post_id: int):
             }), 400
 
         user_id = get_jwt_identity()
+        logging.info(f'Extracted user_id from JWT: {user_id}')
         if not User.query.get(user_id):
             logging.warning(f'Failed to fetch user using current token')
             return jsonify({
@@ -212,8 +213,9 @@ def update_post(post_id: int):
                 'message': f'No post found with id-{post_id}'
             }), 404
 
-        if post.author_id != user_id:
-            logging.warning(f'Unauthorized update attempt by user-{user_id}')
+        if int(post.author_id) != int(user_id):
+            logging.warning(
+                f'Unauthorized update attempt by user-{user_id} to update post-{post_id} owned by user-{post.author_id}')
             return jsonify({
                 'status': 'warning',
                 'message': f'User not authorized to update post-{post_id}'

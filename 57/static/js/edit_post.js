@@ -1,28 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('edit-post-form');
     const postId = form?.dataset.postId;
-    const submitBtn = form?.querySelector('button[type="submit"]');
     const alertPlaceholder = document.getElementById('alert-placeholder');
 
-    if (!form || !postId || !submitBtn || !alertPlaceholder) {
-        console.error('Form/post id/submit/alert placeholder button not found');
-        renderAlert(alertPlaceholder, 'Unable to load edit form', 'danger');
-        return;
-    }
-
-    const ogTxt = submitBtn.textContent;
+    if (!form || !postId || !alertPlaceholder) {
+    console.error('HTML element missing');
+    renderAlert(alertPlaceholder, 'Unable to load edit form', 'danger');
+    return;
+}
 
     async function loadPost() {
         showLoading(form);
         try {
             const result = await getPost(postId);
             clearLoading(form);
-
             const post = result.data;
-            document.getElementById('title').value = post.title || '';
-            document.getElementById('subtitle').value = post.subtitle || '';
-            document.getElementById('body').value = post.body || '';
-            document.getElementById('author-display').value = post.author.name || 'N/A';
+            renderEditPostForm(post, form);
         } catch (error) {
             console.error(`Failed to load post: ${error}`);
             clearLoading(form);
@@ -33,6 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     form.addEventListener('submit', async event => {
+        const submitBtn = form?.querySelector('button[type="submit"]');
+
+        const ogTxt = submitBtn.textContent;
+
         event.preventDefault();
         submitBtn.disabled = true;
         submitBtn.textContent = 'Updating...';
@@ -52,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (!data.title.length < 3) {
+        if (data.title.length < 3) {
             renderAlert(alertPlaceholder, 'Title must be at least 3 characters long', 'warning');
             submitBtn.disabled = false;
             submitBtn.textContent = ogTxt;
