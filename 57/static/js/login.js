@@ -25,13 +25,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await response.json();
 
-            if (response.ok)  {
+            if (response.ok && data.data && data.data.access_token)  {
                 localStorage.setItem('access_token', data.data.access_token);
                 window.location.href = '/';
             } else {
-                const errorData = await response.json();
-                alert(errorData.message || 'Login Failed');
-
+                alert(data.message || 'Login Failed');
                 resetBtn();
             }
         } catch (error) {

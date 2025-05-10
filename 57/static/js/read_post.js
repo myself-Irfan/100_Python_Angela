@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!container || !postId || !alertContainer) {
         console.error('Post container/ID/alertContainer not found');
-        renderAlert(container, 'Unable to load post', 'danger');
+        renderAlert(container, 'Unable to load post due to internal error', 'danger');
         return;
     }
 
