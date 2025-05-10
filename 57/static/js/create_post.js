@@ -19,15 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         const data = {
             title: formData.get('title').trim(),
-            body: formData.get('body').trim(),
-            author: formData.get('author').trim()
+            subtitle: formData.get('subtitle')?.trim() || null,
+            body: formData.get('body').trim()
         };
 
         const subtitle = formData.get('subtitle')?.trim();
         if (subtitle) data.subtitle = subtitle;
 
         // client validation
-        if (!data.title || !data.body || !data.author) {
+        if (!data.title || !data.body) {
             renderAlert(
                 alertPlaceholder,
                 'Please fill in the required fields (title, body, subtitle)',
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderAlert(
                 alertPlaceholder,
                 error.message || 'An error occurred while creating post',
-                'danger'
+                error.message.includes('not found') || error.message.includes('authorized') ? 'warning' : 'alert'
             )
         } finally {
             submitBtn.disabled = false;

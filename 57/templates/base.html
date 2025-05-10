@@ -19,7 +19,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto" id="logged-in-links" style="display: None;">
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="{{ url_for('main.index') }}">Home</a>
                 </li>
@@ -28,6 +28,20 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="logout-link">Logout</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto" id="logged-out-links">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('userapp.login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('userapp.register') }}">Register</a>
                 </li>
             </ul>
         </div>

@@ -1,9 +1,10 @@
 import logging
 from flask import Blueprint, request, jsonify, render_template
 from marshmallow.exceptions import ValidationError
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.exc import IntegrityError
 
-from model import Post, db
+from model import Post, User, db
 from schemas import PostSchema
 
 
@@ -35,7 +36,11 @@ def get_post():
                     'message': f'No post found with id-{post_id}'
                 }, 404
 
-            return post_schema.dump(post), 200
+            return {
+                'status': 'success',
+                'message': 'Post fetched successfully',
+                'data': post_schema.dump(post)
+            }, 200
 
     def __get_all_posts():
         try:
@@ -53,10 +58,21 @@ def get_post():
                     'message': 'No post found'
                 }, 404
 
-            return posts_schema.dump(all_posts), 200
-
+            return {
+                'status': 'success',
+                'message': 'Posts fetched successfully',
+                'data': post_schema.dump(all_posts, many=True)
+            }, 200
 
     try:
+        user_id = get_jwt_identity()
+        if not User.query.get(user_id):
+            logging.warning(f'Failed to fetch user-{user_id} using current token')
+            return jsonify({
+                'status': 'warning',
+                'message': 'User not found'
+            }), 404
+
         post_id = request.args.get('id', type=int)
 
         if post_id:
@@ -79,19 +95,49 @@ def create_post():
     create a new post
     """
     try:
+        if not request.is_json:
+            return jsonify({
+                'status': 'warning',
+                'message': 'Request must be JSON'
+            }), 400
+
+        user_id = get_jwt_identity()
+        if not User.query.get(user_id):
+            logging.warning(f'Failed to fetch user-{user_id} using current token')
+            return jsonify({
+                'status': 'warning',
+                'message': 'User not found'
+            }), 404
+
         data = post_schema.load(request.json)
-        new_post = Post(**data)
+        new_post = Post(
+            title=data['title'],
+            subtitle=data['subtitle'],
+            body=data['body'],
+            author_id=user_id
+        )
 
         db.session.add(new_post)
         db.session.commit()
     except ValidationError as err:
-        return jsonify(err.messages), 400
+        return jsonify({
+            'status': 'error',
+            'message': 'Validation error',
+            'errors': err.messages
+        }), 400
+    except IntegrityError as integ_err:
+        db.session.rollback()
+        logging.error(f'Integrity Error: {integ_err}')
+        return jsonify({
+            'status': 'error',
+            'message': f'Post with title-{request.json.get("title")} may already exist'
+        }), 400
     except Exception as err:
         db.session.rollback()
         logging.error(f'An error occurred while creating post: {str(err)}')
         return jsonify({
             'status': 'error',
-            'message': 'An error occurred while creating post'
+            'message': 'An error occurred while creating post. Please try later.'
         }), 500
     else:
         return jsonify({
@@ -103,6 +149,14 @@ def create_post():
 @jwt_required()
 def delete_post(post_id: int):
     try:
+        user_id = get_jwt_identity()
+        if not User.query.get(user_id):
+            logging.warning(f'Failed to fetch user using current token')
+            return jsonify({
+                'status': 'warning',
+                'message': 'User not found'
+            }), 404
+
         post = Post.query.get(post_id)
 
         if not post:
@@ -110,6 +164,12 @@ def delete_post(post_id: int):
                 'status': 'warning',
                 'message': f'No post found with id-{post_id}'
             }), 404
+        if post.author_id != user_id:
+            logging.warning(f'Unauthorized delete attempt by: {user_id}')
+            return jsonify({
+                'status': 'warning',
+                'message': f'User not authorized to delete post-{post_id}'
+            }), 403
 
         db.session.delete(post)
         db.session.commit()
@@ -131,9 +191,33 @@ def delete_post(post_id: int):
 @jwt_required()
 def update_post(post_id: int):
     try:
+        if not request.is_json:
+            return jsonify({
+                'status': 'error',
+                'message': 'Request must be JSON'
+            }), 400
+
+        user_id = get_jwt_identity()
+        if not User.query.get(user_id):
+            logging.warning(f'Failed to fetch user using current token')
+            return jsonify({
+                'status': 'warning',
+                'message': 'User not found'
+            }), 404
+
         post = Post.query.get(post_id)
         if not post:
-            return jsonify({'message': f'No post found with id-{post_id}'}), 404
+            return jsonify({
+                'status': 'warning',
+                'message': f'No post found with id-{post_id}'
+            }), 404
+
+        if post.author_id != user_id:
+            logging.warning(f'Unauthorized update attempt by user-{user_id}')
+            return jsonify({
+                'status': 'warning',
+                'message': f'User not authorized to update post-{post_id}'
+            }), 403
 
         data = request.json
 
@@ -150,7 +234,18 @@ def update_post(post_id: int):
 
         db.session.commit()
     except ValidationError as val_err:
-        return jsonify({'error': val_err.messages}), 400
+        return jsonify({
+            'status': 'warning',
+            'message': 'Validation error',
+            'error': val_err.messages
+        }), 400
+    except IntegrityError as integ_err:
+        logging.error(f'Integrity error: {integ_err}')
+        db.session.rollback()
+        return jsonify({
+            'status': 'error',
+            'message': f'Post with title-{request.json.get("title")} may already exist'
+        }), 400
     except Exception as db_err:
         db.session.rollback()
         logging.error(f'Failed to update post-{post_id}: {str(db_err)}')
@@ -162,7 +257,7 @@ def update_post(post_id: int):
         logging.info(f'Updated fields for post-{post_id}: {list(validated_data.keys())}')
         return jsonify({
             'status': 'success',
-            'message': 'Post updated successfully'
+            'message': f'Post-{post_id} updated successfully'
         }), 200
 
 # template

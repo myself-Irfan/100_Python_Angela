@@ -1,28 +1,35 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('posts-container');
-    if (!container) {
-        console.error('Posts container not found');
+    const postsContainer = document.getElementById('posts-container');
+    const alertContainer = document.getElementById('alert-placeholder')
+
+    if (!postsContainer || !alertContainer) {
+        console.error('Posts/alert container not found');
         return;
     }
 
-    showLoading(container);
+    async function loadPosts() {
+        showLoading(postsContainer);
+        try {
+            const result = await getPosts();
+            clearLoading(postsContainer);
 
-    getPosts()
-    .then(posts => {
-        clearLoading(container);
-        if (!posts || posts.length === 0) {
-            renderAlert(container, 'No posts found', 'warning');
-            return;
+            const posts = Array.isArray(result.data) ? result.data : [];
+            if (!posts.length)  {
+                renderAlert(alertContainer, 'No posts found', 'warning')
+                return;
+            }
+            result.data.forEach(post => renderPostCard(post, postsContainer));
+        } catch (error) {
+            console.error(`Error loading posts: ${error}`);
+            clearLoading(postsContainer);
+            renderAlert(
+                alertContainer,
+                error.message || 'Failed to load posts',
+                message.includes('not found') ? 'warning' : 'danger'
+            );
         }
-        posts.forEach(post => renderPostCard(post, container));
-    })
-    .catch(err => {
-        console.error('Failed to fetch posts: ', err);
-        clearLoading(container);
-        renderAlert(
-            container,
-            err.message || 'An error occurred while loading posts',
-            err.message.includes('No posts') ? 'warning' : 'danger'
-        );
-    });
+    }
+
+    loadPosts();
+
 });

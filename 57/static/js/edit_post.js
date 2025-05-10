@@ -4,61 +4,78 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = form?.querySelector('button[type="submit"]');
     const alertPlaceholder = document.getElementById('alert-placeholder');
 
-    if (!form || !postId || !submitBtn) {
-        console.error('Form, postId or submit button not found');
+    if (!form || !postId || !submitBtn || !alertPlaceholder) {
+        console.error('Form/post id/submit/alert placeholder button not found');
         renderAlert(alertPlaceholder, 'Unable to load edit form', 'danger');
         return;
     }
 
     const ogTxt = submitBtn.textContent;
 
-    getPost(postId)
-    .then(post => {
-        document.getElementById('title').value = post.title || '';
-        document.getElementById('subtitle').value = post.subtitle || '';
-        document.getElementById('body').value = post.body || '';
+    async function loadPost() {
+        showLoading(form);
+        try {
+            const result = await getPost(postId);
+            clearLoading(form);
 
-        form.addEventListener('submit', async event => {
-            event.preventDefault();
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Updating...';
+            const post = result.data;
+            document.getElementById('title').value = post.title || '';
+            document.getElementById('subtitle').value = post.subtitle || '';
+            document.getElementById('body').value = post.body || '';
+            doc
+        } catch (error) {
+            console.error(`Failed to load post: ${error}`);
+            clearLoading(form);
+            const message = error.message || 'An error occurred while loading the post';
+            const type = message.includes('not found') ? 'warning' : 'danger';
+            renderAlert(alertPlaceholder, message, type);
+        }
+    }
 
-            const updatedPost = {
-                title: document.getElementById('title').value.trim(),
-                subtitle: document.getElementById('subtitle').value.trim() || undefined,
-                body: document.getElementById('body').value.trim() || undefined
-            };
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Updating...';
+        alertPlaceholder.innerHTML = '';
 
-            if (!updatedPost.title || !updatedPost.body) {
-                renderAlert(alertPlaceholder, 'Title and Body are required', 'warning');
-                submitBtn.disabled = false;
-                submitBtn.textContent = ogTxt;
-                return;
-            }
+        const formData = new FormData(form);
+        const data = {
+            title: formData.get('title').trim(),
+            subtitle: formData.get('subtitle')?.trim() || null;
+            body: formData.get('body').trim()
+        };
 
-            try {
-                await updatePost(postId, updatedPost);
-                alert('Post updated successfully');
+        if (!data.title || !data.body) {
+            renderAlert(alertPlaceholder, 'Please fill in the all the required fields', 'warning');
+            submitBtn.disabled  = false
+            submitBtn.textContent = ogTxt;
+            return;
+        }
+
+        if (!data.title.length < 3) {
+            renderAlert(alertPlaceholder, 'Title must be at least 3 characters long', 'warning');
+            submitBtn.disabled = false;
+            submitBtn.textContent = ogTxt;
+            return;
+        }
+
+        try{
+            const result =  await updatePost(postId, data);
+            renderAlert(alertPlaceholder, result.message, 'success');
+            setTimeout(() => {
                 window.location.href = `/read_post/${postId}`;
-            } catch (err) {
-                console.error('Update error: ', err);
-                renderAlert(
-                    alertPlaceholder,
-                    err.messages || 'An error occurred while updating the post',
-                    'danger'
-                )
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = ogTxt;
-            }
-        });
+            }, 1000);
+        } catch (error) {
+            console.error(`Failed to updatePost: ${error}`);
+            const message = error.message || 'An error occurred while updating the post';
+            const type = message.includes('not found') || message.includes('authorized') ? 'warning' : 'danger';
+            renderAlert(alertPlaceholder, message, type);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = ogTxt;
+        }
     })
-    .catch(err => {
-        console.error('Fetch error: ', err);
-        renderAlert(
-            alertPlaceholder,
-            err.messages || 'An error occurred while loading updated post',
-            err.message.includes('No post') ? 'warning' : 'danger'
-        );
-    });
+
+    loadPost();
+
 });

@@ -1,21 +1,25 @@
 async function getPosts() {
     const response = await fetchWithAuth('/api/get');
-    if (!response) throw new Error('Redirected to login');
+    if (!response) throw new Error('Authentication required');
+
+    const data = await response.json();
+
     if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message|| 'Failed to fetch posts');
     }
-    return response.json();
+    return data;
 }
 
 async function getPost(id) {
     const response = await fetchWithAuth(`/api/get?id=${id}`);
-    if (!response) throw new Error('Redirected to login');
+    if (!response) throw new Error('Authentication required');
+
+    const data = await response.json();
+
     if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message || 'Failed to fetch post');
     }
-    return response.json();
+    return data;
 }
 
 async function createPost(data) {
@@ -27,11 +31,13 @@ async function createPost(data) {
         body: JSON.stringify(data)
     });
     if (!response) throw new Error('Redirected to login');
+
+    const result = await response.json();
+
     if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to create post')
+        throw new Error(result.message || 'Failed to create post')
     }
-    return response.json();
+    return result;
 }
 
 async function updatePost(id, data) {
@@ -43,11 +49,13 @@ async function updatePost(id, data) {
         body: JSON.stringify(data)
     });
     if (!response) throw new Error('Redirected to login');
+
+    const result = await response.json();
+
     if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to update post');
+        throw new Error(result.message || 'Failed to update post');
     }
-    return response.json();
+    return result;
 }
 
 async function deletePost(id) {
@@ -55,9 +63,11 @@ async function deletePost(id) {
         method: 'DELETE'
     });
     if (!response) throw new Error('Redirected to login')
+
+    const data = await response.json();
+
     if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message || 'Failed to delete post');
     }
-    throw response.json();
+    return data;
 }

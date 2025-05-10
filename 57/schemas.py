@@ -1,46 +1,59 @@
-from marshmallow import Schema, fields, validate, EXCLUDE, pre_load
+from flask_marshmallow import Marshmallow
+from marshmallow import fields, validate, EXCLUDE, pre_load
+from model import Post, User
 
+ma =  Marshmallow()
 
-class PostSchema(Schema):
+class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
+        model = User
+        fields = ('id', 'name')
+        load_instance = False
+
+class PostSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Post
+        exclude = ('author_id',)
         unknown = EXCLUDE
+        load_instance = False
 
     id = fields.Int(dump_only=True)
     title = fields.Str(required=True, validate=validate.Length(min=1, max=100))
-    subtitle = fields.Str(allow_none=True, validate=validate.Length(min=1, max=200))
+    subtitle = fields.Str(allow_none=True, validate=validate.Length(max=200))
     body = fields.Str(required=True, validate=validate.Length(min=1, max=500))
-    author = fields.Str(required=True, validate=validate.Length(min=1, max=100))
     create_date = fields.DateTime(dump_only=True)
+    author = fields.Nested(UserSchema, dump_only=True)
 
-
-class RegisterSchema(Schema):
+class RegisterSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
+        model = User
+        exclude = ('create_date',)
         unknown = EXCLUDE
+        load_instance = False
 
     id = fields.Int(dump_only=True)
-    email = fields.Str(required=True, validate=validate.Length(min=1, max=50))
+    email = fields.Email(required=True, validate=validate.Length(min=1,  max=50))
     password = fields.Str(required=True, validate=validate.Length(min=5, max=20))
-    name = fields.Str(required=True, validate=validate.Length(min=4, max=50))
-    create_date = fields.DateTime(dump_only=True)
+    name = fields.Str(required=True, validate=validate.Length(min=5, max=50))
 
-    @pre_load
+    @pre_load()
     def normalize_email(self, data, **kwargs):
         if 'email' in data and isinstance(data['email'], str):
             data['email'] = data['email'].strip().lower()
         return data
 
-
-class LoginSchema(Schema):
+class LoginSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
+        model = User
+        exclude = ('create_date', 'name')
         unknown = EXCLUDE
+        load_instance = False
 
     id = fields.Int(dump_only=True)
-    email = fields.Str(required=True, validate=validate.Length(min=1, max=50))
+    email = fields.Email(required=True, validate=validate.Length(min=1, max=50))
     password = fields.Str(required=True, validate=validate.Length(min=5, max=20))
-    name = fields.Str(dump_only=True)
-    create_date = fields.DateTime(dump_only=True)
 
-    @pre_load
+    @pre_load()
     def normalize_email(self, data, **kwargs):
         if 'email' in data and isinstance(data['email'], str):
             data['email'] = data['email'].strip().lower()

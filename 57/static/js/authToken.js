@@ -1,3 +1,5 @@
+// return locally stored access_token
+
 function getAccessToken() {
     return localStorage.getItem('access_token');
 }
@@ -23,7 +25,7 @@ async function fetchWithAuth(url, options = {}) {
         return response;
     } catch (error) {
         console.error(`Fetch error for ${url}: ${error}`);
-        throw error;
+        throw new Error('Network error occurred');
     }
 }
 
@@ -34,8 +36,7 @@ async function refreshToken() {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('refresh_token')}`
-            },
-            credentials: 'include'
+            }
         });
 
         if (!res.ok) {
@@ -45,7 +46,7 @@ async function refreshToken() {
 
         const data = await res.json();
         localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('refresh_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
         return true
     } catch (error) {
         console.error(`Error refreshing token: ${error}`);

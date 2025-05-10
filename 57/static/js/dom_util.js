@@ -1,3 +1,5 @@
+// render all posts in index
+
 function renderPostCard(post, container) {
     const postCard = `
         <div class="col">
@@ -16,31 +18,43 @@ function renderPostCard(post, container) {
     container.insertAdjacentHTML('beforeend', postCard);
 }
 
+
+// render post in read post
+
 function renderPostContent(post, container) {
     container.innerHTML = `
         <h2 class="card-title">${post.title}</h2>
         <h5 class="card-subtitle mb-2 text-muted">${post.subtitle || 'No subtitle'}</h5>
         <p class="card-text mt-4">${post.body || 'No content available'}</p>
-        <p class="card-text"><small class="text-muted">By ${post.author || 'Unknown'}</small></p>
+        <p class="card-text"><small class="text-muted">By ${post.author?.name || 'Unknown'}</small></p>
         <p class="card-text"><small class="text-muted">${new Date(post.create_date || Date.now()).toLocaleDateString()}</small></p>
         <a href="/edit_post/${post.id}" class="btn btn-warning me-2">Edit Post</a>
         <button class="btn btn-danger" id="delete-post-btn">Delete Post</button>
     `;
 }
 
+
+// render alert
+
 function renderAlert(placeholder, message, type = 'danger') {
     if (!placeholder) return;
     placeholder.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible" role="alert">
+        <div class="alert alert-${type} alert-dismissible fade-show" role="alert">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     `;
 }
 
+
+// show loading
+
 function showLoading(container) {
-    container.innerHTML = '<div class="spinner"></div>';
+    container.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
 }
+
+
+// clear spinner loading
 
 function clearLoading(container) {
     container.innerHTML = '';
