@@ -4,8 +4,8 @@ from marshmallow.exceptions import ValidationError
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 
-from model import Post, User, db
-from schemas import PostSchema
+from .model import Post, User, db
+from .schemas import PostSchema
 
 
 main = Blueprint('main', __name__, url_prefix='/')

@@ -3,9 +3,9 @@ from flask import Blueprint, request, jsonify, render_template
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 from marshmallow.exceptions import ValidationError
 
-from model import db, User
-from schemas import RegisterSchema, LoginSchema
-from security import hash_pwd, verify_pwd
+from .model import db, User
+from .schemas import RegisterSchema, LoginSchema
+from .security import hash_pwd, verify_pwd
 
 userapp = Blueprint('userapp', __name__, url_prefix='/user')
 

@@ -53,8 +53,8 @@ def init_app():
             'allowed': allowed
         })
 
-    from blogapp_routes import main
-    from userapp_routes import userapp
+    from .blogapp_routes import main
+    from .userapp_routes import userapp
 
     app.register_blueprint(main)
     app.register_blueprint(userapp)

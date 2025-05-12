@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 import pytz
 
-from blog_app import db
+from .__init__ import db
 
 bd_timezone = pytz.timezone('Asia/Dhaka')
 
