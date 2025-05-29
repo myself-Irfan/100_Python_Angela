@@ -55,3 +55,19 @@ if __name__ == '__main__':
 
     total_lang_per_month = df.groupby('TAG')[['POSTS']].count()
     logging.info(f'Post per month each lang: {total_lang_per_month}')
+
+    # converting date str to datetime
+    df['DATE'] = pd.to_datetime(df['DATE'])
+
+    reshaped_df = df.pivot(index='DATE', columns='TAG', values='POSTS')
+    logging.info(f'Pivot Columns: {reshaped_df.columns}')
+    logging.info(f'Pivot Table Entry Count: {reshaped_df.count()}')
+    reshaped_df = reshaped_df.fillna(0)
+    logging.info(f'Pivot Rows: {reshaped_df.shape[0]}\tColumns: {reshaped_df.shape[1]}')
+    logging.info(f'Pivot top 5 rows:\n{reshaped_df.head(5)}')
+    logging.info(f'Pivot low 5 rows:\n{reshaped_df.tail(5)}')
+
+    logging.info(f'NaN in pivot df: {reshaped_df.isna().values.any()}')
+
+
+
