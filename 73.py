@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import logging
+import matplotlib.pyplot as plt
 
 
 def setup_logging(cur_f_name: str) -> None:
@@ -69,5 +70,25 @@ if __name__ == '__main__':
 
     logging.info(f'NaN in pivot df: {reshaped_df.isna().values.any()}')
 
+    # check 12
+    chart_df = reshaped_df.rolling(window=12).mean()
 
+    plt.figure(figsize=(15, 10))
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
+    plt.xlabel('Date', fontsize=15)
+    plt.ylabel('Number of Posts', fontsize=15)
+    # plt.ylim(0, 35000)
+    # plt.plot(reshaped_df.index, reshaped_df.java)
+    # plt.plot(reshaped_df.index, reshaped_df.python)
 
+    for column in chart_df.columns:
+        plt.plot(
+            chart_df.index,
+            chart_df[column],
+            linewidth=3,
+            label=chart_df[column].name
+        )
+    plt.legend(fontsize=15)
+
+    plt.show()
