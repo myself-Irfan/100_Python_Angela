@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     logging.info(f'NaN in pivot df: {reshaped_df.isna().values.any()}')
 
-    # check 12
+    # check 12 rows for data and make a mean
     chart_df = reshaped_df.rolling(window=12).mean()
 
     plt.figure(figsize=(15, 10))

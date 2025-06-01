@@ -1,6 +1,7 @@
 import os
 import logging
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def setup_logging(cur_f_name: str) -> None:
@@ -44,8 +45,21 @@ def main():
     logging.info(f'Number of transparent colors: {color_df.is_trans.value_counts()}')
 
     sets_df = fetch_df('data/sets.csv')
+    sets_df = sets_df.reset_index()
     logging.info(f'First year set details:\n{sets_df[sets_df.year == sets_df.year.min()]}')
     logging.info(f'Top 5 sets with most number of parts: {sets_df.sort_values("num_parts", ascending=False).head(5)}')
+
+    sets_by_yr = sets_df.groupby('year')[['set_num']].count().sort_values(by=['year'], ascending=True)
+    logging.info(f'Earliest 5 sets release: {sets_by_yr.head(5)}')
+    logging.info(f'Latest 5 sets release: {sets_by_yr.tail(5)}')
+
+    plt.figure(figsize=(15, 10))
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
+    plt.xlabel('Year', fontsize=15)
+    plt.ylabel('Sets Released', fontsize=15)
+    plt.plot(sets_by_yr.index[:-2], sets_by_yr.set_num[:-2])
+    plt.show()
 
 
 if __name__ == '__main__':
