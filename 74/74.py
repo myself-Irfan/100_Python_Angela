@@ -67,6 +67,42 @@ def plot_df(x_data, y_data, title: str, x_label: str, y_label: str):
         logging.error(f'Unexpected error: {e}')
 
 
+def plot_twinx_line_chart(x_data, y1_data, y2_data, title:str, x_label: str, y1_label: str, y2_label: str):
+    logging.info('Initiating plotting twin-x chart')
+
+    if not (len(x_data) == len(y1_data) == len(y2_data)):
+        logging.error(f'x_data: {x_data}, y1_data: {y1_data} and y2_data: {y2_data} must be of same length')
+        return
+
+    if any(len(data) == 0 for data in [x_data, y1_data, y2_data]):
+        logging.warning(f'One or more data inputs are empty. x_data: {x_data}, y1_data: {y1_data}, y2_data: {y2_data}')
+        return
+
+    try:
+        fig, ax1 = plt.subplots(figsize=(15, 10))
+        ax2 = ax1.twinx()
+
+        ax1.plot(x_data, y1_data, color='g', marker='o', label=y1_label)
+        ax2.plot(x_data, y2_data, color='b', marker='o', label=y2_label)
+
+        ax1.set_xlabel(x_label, fontsize=15)
+        ax1.set_ylabel(y1_label, fontsize=15)
+        ax2.set_ylabel(y2_label, fontsize=15)
+        ax1.set_title(title, fontsize=18)
+
+        ax1.tick_params(axis='x', labelsize=10)
+        ax1.tick_params(axis='y', labelsize=10)
+        ax2.tick_params(axis='y', labelsize=10)
+        ax1.grid(True)
+
+        plt.tight_layout()
+        plt.show()
+
+        logging.info('Plotting complete')
+    except Exception as e:
+        logging.error(f'Unexpected error: {e}')
+
+
 def main():
     color_df = fetch_df('data/colors.csv')
     logging.info(f'Unique colors: {color_df.name.nunique()}')
@@ -100,6 +136,16 @@ def main():
         title='Theme by Year',
         x_label='Year',
         y_label='Theme count'
+    )
+
+    plot_twinx_line_chart(
+        x_data=sets_by_yr.index[:-2],
+        y1_data=sets_by_yr.set_num[:-2],
+        y2_data=themes_by_yr.num_themes[:-2],
+        title='Set vs Themes over the years',
+        x_label='Year',
+        y1_label='Number of Sets',
+        y2_label='Number of Themes'
     )
 
 
