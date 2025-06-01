@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -37,7 +37,35 @@ def fetch_df(csv_in: str) -> pd.DataFrame:
     else:
         logging.info(f'DataFrame fetched successfully with {len(df)} rows and {len(df.columns)} columns')
         return df
-    
+
+
+def plot_df(x_data, y_data, title: str, x_label: str, y_label: str):
+    logging.info(f'Initiating plotting chart')
+
+    if len(x_data) != len(y_data):
+        logging.error(f'x_data: {x_data} and y_data: {y_data} must be of same length')
+        return
+
+    if x_data.empty or y_data.empty:
+        logging.warning(f'x_data: {x_data} or y_data: {y_data} is empty')
+        return
+
+    try:
+        plt.figure(figsize=(15, 10))
+        plt.xticks(fontsize=10)
+        plt.yticks(fontsize=10)
+        plt.title(title)
+        plt.xlabel(x_label, fontsize=15)
+        plt.ylabel(y_label, fontsize=15)
+        plt.plot(x_data, y_data, marker='o')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+        logging.info('Plotting complete')
+    except Exception as e:
+        logging.error(f'Unexpected error: {e}')
+
 
 def main():
     color_df = fetch_df('data/colors.csv')
@@ -53,16 +81,16 @@ def main():
     logging.info(f'Earliest 5 sets release: {sets_by_yr.head(5)}')
     logging.info(f'Latest 5 sets release: {sets_by_yr.tail(5)}')
 
-    plt.figure(figsize=(15, 10))
-    plt.xticks(fontsize=10)
-    plt.yticks(fontsize=10)
-    plt.xlabel('Year', fontsize=15)
-    plt.ylabel('Sets Released', fontsize=15)
-    plt.plot(sets_by_yr.index[:-2], sets_by_yr.set_num[:-2])
-    plt.show()
+    plot_df(
+        x_data=sets_by_yr.index[:-2],
+        y_data=sets_by_yr.set_num[:-2],
+        title='Number of Sets Released by Year',
+        x_label='Year',
+        y_label='Number of Sets'
+    )
 
 
 if __name__ == '__main__':
-    setup_logging(os.path.splitext(os.path.basename(__file__))[0])
+    setup_logging(Path(__file__).stem)
 
     main()
