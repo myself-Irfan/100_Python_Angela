@@ -89,6 +89,19 @@ def main():
         y_label='Number of Sets'
     )
 
+    themes_by_yr = sets_df.groupby('year').aggregate({'theme_id': pd.Series.nunique})
+    themes_by_yr = themes_by_yr.rename(columns={'theme_id': 'num_themes'})
+    logging.info(f'Earliest 5 theme by year:\n{themes_by_yr.head(5)}')
+    logging.info(f'Latest 5 theme by year:\n{themes_by_yr.tail(5)}')
+
+    plot_df(
+        x_data=themes_by_yr.index[:-1],
+        y_data=themes_by_yr.num_themes[:-1],
+        title='Theme by Year',
+        x_label='Year',
+        y_label='Theme count'
+    )
+
 
 if __name__ == '__main__':
     setup_logging(Path(__file__).stem)
