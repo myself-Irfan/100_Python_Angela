@@ -173,6 +173,24 @@ def main():
         y_label='Parts'
     )
 
+    themes_df = fetch_df('data/themes.csv')
+
+    set_theme_count = sets_df['theme_id'].value_counts()
+    set_theme_count = pd.DataFrame({
+        'id': set_theme_count.index,
+        'set_count': set_theme_count.values
+    })
+
+    merged_df = pd.merge(set_theme_count, themes_df, on='id').sort_values(by='set_count', ascending=False)
+
+    plot_df(
+        plot_type='bar',
+        x_data=merged_df.name[:10],
+        y_data=merged_df.set_count[:10],
+        title='Top 10 Theme Set',
+        x_label='Theme',
+        y_label='Number of sets'
+    )
 
 if __name__ == '__main__':
     setup_logging(Path(__file__).stem)
