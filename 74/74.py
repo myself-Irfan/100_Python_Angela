@@ -39,7 +39,7 @@ def fetch_df(csv_in: str) -> pd.DataFrame:
         return df
 
 
-def plot_df(x_data, y_data, title: str, x_label: str, y_label: str):
+def plot_df(plot_type: str, x_data, y_data, title: str, x_label: str, y_label: str):
     logging.info(f'Initiating plotting chart')
 
     if len(x_data) != len(y_data):
@@ -57,7 +57,17 @@ def plot_df(x_data, y_data, title: str, x_label: str, y_label: str):
         plt.title(title)
         plt.xlabel(x_label, fontsize=15)
         plt.ylabel(y_label, fontsize=15)
-        plt.plot(x_data, y_data, marker='o')
+
+        if plot_type == 'line':
+            plt.plot(x_data, y_data, marker='o', color='b')
+        elif plot_type == 'scatter':
+            plt.scatter(x_data, y_data, marker='o', color='b')
+        elif plot_type == 'bar':
+            plt.bar(x_data, y_data, color='b')
+        else:
+            logging.error(f'Unsupported plot type: {plot_type}')
+            return
+
         plt.grid(True)
         plt.tight_layout()
         plt.show()
@@ -117,43 +127,45 @@ def main():
     logging.info(f'Earliest 5 sets release: {sets_by_yr.head(5)}')
     logging.info(f'Latest 5 sets release: {sets_by_yr.tail(5)}')
 
-    # plot_df(
-    #     x_data=sets_by_yr.index[:-2],
-    #     y_data=sets_by_yr.set_num[:-2],
-    #     title='Number of Sets Released by Year',
-    #     x_label='Year',
-    #     y_label='Number of Sets'
-    # )
+    plot_df(
+        plot_type='line',
+        x_data=sets_by_yr.index[:-2],
+        y_data=sets_by_yr.set_num[:-2],
+        title='Number of Sets Released by Year',
+        x_label='Year',
+        y_label='Number of Sets'
+    )
 
     themes_by_yr = sets_df.groupby('year').aggregate({'theme_id': pd.Series.nunique})
     themes_by_yr = themes_by_yr.rename(columns={'theme_id': 'num_themes'})
     logging.info(f'Earliest 5 theme by year:\n{themes_by_yr.head(5)}')
     logging.info(f'Latest 5 theme by year:\n{themes_by_yr.tail(5)}')
 
-    # plot_df(
-    #     x_data=themes_by_yr.index[:-1],
-    #     y_data=themes_by_yr.num_themes[:-1],
-    #     title='Theme by Year',
-    #     x_label='Year',
-    #     y_label='Theme count'
-    # )
+    plot_df(
+        plot_type='line',
+        x_data=themes_by_yr.index[:-1],
+        y_data=themes_by_yr.num_themes[:-1],
+        title='Theme by Year',
+        x_label='Year',
+        y_label='Theme count'
+    )
 
-    # plot_twinx_line_chart(
-    #     x_data=sets_by_yr.index[:-2],
-    #     y1_data=sets_by_yr.set_num[:-2],
-    #     y2_data=themes_by_yr.num_themes[:-2],
-    #     title='Set vs Themes over the years',
-    #     x_label='Year',
-    #     y1_label='Number of Sets',
-    #     y2_label='Number of Themes'
-    # )
+    plot_twinx_line_chart(
+        x_data=sets_by_yr.index[:-2],
+        y1_data=sets_by_yr.set_num[:-2],
+        y2_data=themes_by_yr.num_themes[:-2],
+        title='Set vs Themes over the years',
+        x_label='Year',
+        y1_label='Number of Sets',
+        y2_label='Number of Themes'
+    )
 
     parts_per_set = sets_df.groupby('year').aggregate({
         'num_parts': pd.Series.mean
     })
 
-    # TODO: scatter plot
     plot_df(
+        plot_type='scatter',
         x_data=parts_per_set.index[:-1],
         y_data=parts_per_set.num_parts[:-1],
         title='Parts per set over the years',
