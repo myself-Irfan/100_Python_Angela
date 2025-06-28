@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from PIL import Image, ImageTk, ImageEnhance
 from dataclasses import dataclass
+from typing import Literal
 
 
 def setup_logging() -> None:
@@ -15,6 +16,8 @@ def setup_logging() -> None:
             logging.FileHandler(f'{CUR_F_NAME}.log', encoding='utf-8')
         ]
     )
+
+    logging.info('Logging setup complete')
 
 
 @dataclass
@@ -43,7 +46,7 @@ class WatermarkApp:
             y_offset=tk.DoubleVar(value=20)
         )
 
-        self.canvas = tk.Canvas(self.root, bg='grey')
+        self.canvas = tk.Canvas(self.root, bg='white')
         self.canvas.pack(fill='both', expand=True, pady=10)
 
         self.canvas.bind("<Configure>", self._on_canvas_resize)
@@ -52,6 +55,8 @@ class WatermarkApp:
 
         self.status = tk.StringVar(value='Ready')
         ttk.Label(self.root, textvariable=self.status, anchor='w').pack(fill='x', side='bottom')
+
+        self._toggle_sliders('disabled')
 
         logging.info('App UI Initialized')
 
@@ -69,25 +74,33 @@ class WatermarkApp:
         slider_frame.pack(pady=5)
 
         tk.Label(slider_frame, text='Opacity').grid(row=0, column=0)
-        tk.Scale(
-            slider_frame, from_=0, to=1, resolution=0.01,
+        self.opacity_slider = ttk.Scale(
+            slider_frame, from_=0, to=1,
             variable=self.state.opacity, orient='horizontal',
             command=self._on_slider_change
-        ).grid(row=0, column=1, padx=10)
+        )
+        self.opacity_slider.grid(row=0, column=1, padx=10)
 
         ttk.Label(slider_frame, text='Right Margin (X Offset)').grid(row=0, column=2)
-        ttk.Scale(
+        self.x_offset_slider = ttk.Scale(
             slider_frame, from_=0, to=200, variable=self.state.x_offset,
             orient='horizontal', command=self._on_slider_change
-        ).grid(row=0, column=3, padx=10)
+        )
+        self.x_offset_slider.grid(row=0, column=3, padx=10)
 
         ttk.Label(slider_frame, text='Bottom Margin (Y Offset)').grid(row=0, column=4)
-        ttk.Scale(
+        self.y_offset_slider = ttk.Scale(
             slider_frame, from_=0, to=200, variable=self.state.y_offset,
             orient='horizontal', command=self._on_slider_change
-        ).grid(row=0, column=5, padx=10)
+        )
+        self.y_offset_slider.grid(row=0, column=5, padx=10)
 
         logging.info('Controls setup complete')
+
+    def _toggle_sliders(self, state: Literal['normal', 'active', 'disabled'] = 'normal'):
+        self.opacity_slider.configure(state=state)
+        self.x_offset_slider.configure(state=state)
+        self.y_offset_slider.configure(state=state)
 
     def load_target_image(self):
         logging.info('Loading target image...')
@@ -118,6 +131,8 @@ class WatermarkApp:
         self.state.watermark = wm
         logging.info(f'Watermark loaded from: {path}')
         messagebox.showinfo("Watermark Loaded", "Watermark image loaded successfully.")
+
+        self._toggle_sliders('active')
         self._refresh_canvas()
 
     def apply_watermark(self) -> Image.Image:
@@ -188,6 +203,7 @@ class WatermarkApp:
             return
 
         final_img.convert('RGB').save(path)
+
         logging.info(f"Image saved to: {path}")
         messagebox.showinfo("Image Saved", f"Image saved to:\n{path}")
 
@@ -196,9 +212,11 @@ def main():
     setup_logging()
 
     logging.info('Starting Watermark App...')
+
     root = tk.Tk()
     app = WatermarkApp(root)
     root.mainloop()
+
     logging.info('App closed')
 
 
@@ -206,3 +224,4 @@ if __name__ == '__main__':
     CUR_F_NAME = os.path.splitext(os.path.basename(__file__))[0]
     main()
 
+    # TODO: resize canvas to image size
