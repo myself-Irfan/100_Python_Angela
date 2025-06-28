@@ -225,3 +225,4 @@ if __name__ == '__main__':
     main()
 
     # TODO: resize canvas to image size
+    # TODO: Need to make this proper
