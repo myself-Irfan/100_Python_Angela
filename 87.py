@@ -1,7 +1,7 @@
 import os
 import logging
 from turtle import Turtle, Screen
-import random
+from random import choice
 import time
 
 
@@ -27,7 +27,7 @@ class Paddle(Turtle):
     paddle object
     """
 
-    def __init__(self, screen_width, paddle_speed):
+    def __init__(self, screen_width: int, paddle_speed: int):
         logging.info(f'Initializing {self.__class__.__name__}')
 
         super().__init__()
@@ -111,7 +111,7 @@ class Scoreboard(Turtle):
         self.color('white')
         self.penup()
         self.hideturtle()
-        self.goto(0, SCREEN_WIDTH//4)
+        self.goto(0, SCREEN_WIDTH // 4)
         self.update_score()
 
         logging.info(f'{self.__class__.__name__} initialized successfully')
@@ -139,72 +139,99 @@ class Scoreboard(Turtle):
         )
 
 
+class BreakOutGame:
+    def __init__(self):
+        logging.info(f'Initializing {self.__class__.__name__}')
+
+        self.screen = Screen()
+        self.screen.title('Game - Breakout')
+        self.screen.bgcolor('black')
+        self.screen.setup(width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
+        self.screen.tracer(0)
+
+        self.paddle = Paddle(SCREEN_WIDTH, PADDLE_SPEED)
+        self.ball = Ball()
+        self.scoreboard = Scoreboard()
+        self.bricks = self._create_bricks()
+
+        self._setup_controls()
+
+        logging.info(f'{self.__class__.__name__} initialized successfully')
+
+    def _create_bricks(self):
+        logging.info(f'Initializing brick walls from {self.__class__.__name__}')
+
+        bricks = []
+        start_x = -SCREEN_WIDTH // 2 + 50
+        start_y = 200
+
+        for row in range(BRICK_ROWS):
+            for col in range(BRICK_COLUMNS):
+                x = start_x + col * 60
+                y = start_y + row * 30
+                color = choice(BRICK_COLORS)
+                brick = Brick(x, y, color)
+                bricks.append(brick)
+
+        logging.info(f'Returning bricks from {self.__class__.__name__}')
+        return bricks
+
+    def _setup_controls(self):
+        logging.info(f'Setting up controls')
+
+        self.screen.listen()
+        self.screen.onkeypress(self.paddle.go_left, "Left")
+        self.screen.onkeypress(self.paddle.go_right, "Right")
+
+        logging.info('Controls set up successfully')
+
+    def run(self):
+        game_on = True
+
+        while game_on:
+            self.screen.update()
+            time.sleep(0.016) # 60 FPS
+            self.ball.move_ball()
+
+            # wall collisions
+            if abs(self.ball.xcor()) > SCREEN_WIDTH // 2 - 10:
+                self.ball.bounce_x()
+            if self.ball.ycor() > SCREEN_HEIGHT // 2 - 10:
+                self.ball.bounce_y()
+
+            # paddle collisions
+            if -250 < self.ball.ycor() < -240 and self.paddle.xcor() - 50 < self.ball.xcor() < self.paddle.xcor() + 50:
+                self.ball.bounce_y()
+
+            # bottom wall (lose condition)
+            if self.ball.ycor() < -SCREEN_HEIGHT // 2:
+                logging.info('Ball missed the paddle. Game over')
+                self.scoreboard.game_over('GAME OVER')
+                game_on = False
+
+            # brick collision
+            for brick in self.bricks[:]: # copy to avoid modifying list during iteration
+                if self.ball.distance(brick) < 30:
+                    self.ball.bounce_y()
+                    brick.goto(1000, 1000)
+                    self.bricks.remove(brick)
+                    self.scoreboard.increase_score()
+                    break
+
+            # win condition
+            if not self.bricks:
+                logging.info('All bricks cleared. User won')
+                self.scoreboard.game_over('YOU WIN')
+                game_on = False
+
+        self.screen.mainloop()
+
+
 def main():
     setup_logging(CUR_FILE)
 
-    screen = Screen()
-    screen.title('Game - Breakout')
-    screen.bgcolor('black')
-    screen.setup(width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
-    screen.tracer(0)
-
-    paddle = Paddle(SCREEN_WIDTH, PADDLE_SPEED)
-    ball = Ball()
-    scoreboard = Scoreboard()
-
-    bricks = []
-    start_x = -SCREEN_WIDTH // 2 + 50
-    start_y = 200
-
-    # initiating brick wall
-    for row in range(BRICK_ROWS):
-        for col in range(BRICK_COLUMNS):
-            x = start_x + col * 60
-            y = start_y + row * 30
-            color = BRICK_COLORS[row % len(BRICK_COLORS)]
-            brick = Brick(x, y, color)
-            bricks.append(brick)
-
-    screen.listen()
-    screen.onkeypress(paddle.go_left, "Left")
-    screen.onkeypress(paddle.go_right, "Right")
-
-    game_on = True
-    while game_on:
-        screen.update()
-        time.sleep(0.01)
-        ball.move_ball()
-
-        # wall collision
-        if ball.xcor() > SCREEN_WIDTH // 2 - 10 or ball.xcor() < -SCREEN_WIDTH // 2 + 10:
-            ball.bounce_x()
-        if ball.ycor() > SCREEN_HEIGHT // 2 - 10:
-            ball.bounce_y()
-
-        # paddle collision
-        if -240 < ball.ycor() < -230 and paddle.xcor() - 60 < ball.xcor() < paddle.xcor() + 60:
-            ball.bounce_y()
-
-        if ball.ycor() < -SCREEN_HEIGHT // 2:
-            logging.info('Ball missed the paddle. Game over')
-            scoreboard.game_over('GAME OVER')
-            game_on = False
-
-        for brick in bricks:
-            if ball.distance(brick) < 35:
-                ball.bounce_y()
-                brick.goto(1000, 1000)
-                bricks.remove(brick)
-                scoreboard.increase_score()
-                break
-
-        # win condition
-        if not bricks:
-            logging.info('All bricks cleared. You win')
-            scoreboard.game_over('YOU WIN!')
-            game_on = False
-
-    screen.mainloop()
+    game_instance = BreakOutGame()
+    game_instance.run()
 
 
 if __name__ == '__main__':
