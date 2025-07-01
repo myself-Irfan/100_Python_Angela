@@ -1,11 +1,59 @@
 {% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_form %}
-{% block title %}
-Add Cafe
-{% endblock %}
+{% block title %}Add Cafe{% endblock %}
 
 {% block content %}
 <h1>Add a new cafe into database</h1>
-{{ render_form(form, novalidate=True) }}
-<p><a href="{{ url_for('cafes') }}">See all cafes</a></p>
+
+<form method="post" action="/add">
+    <div>
+        <label for="cafe">Cafe Name</label>
+        <input type="text" id="cafe" name="cafe" required>
+    </div>
+    <div>
+        <label for="location">Cafe Location - Google Maps(URL)</label>
+        <input type="url" id="location" name="location" required>
+    </div>
+    <div>
+        <label for="open">Opening Time</label>
+        <input type="time" id="open" name="open" required>
+    </div>
+    <div>
+        <label for="close">Closing Time</label>
+        <input type="time" id="close" name="close" required>
+    </div>
+    <div>
+        <label for="coffee_rating">Coffee Rating</label>
+        <select id="coffee_rating" name="coffee_rating" required>
+            <option value="1">☕️</option>
+            <option value="2">☕️☕️</option>
+            <option value="3">☕️☕️☕️</option>
+            <option value="4">☕️☕️☕️☕️</option>
+            <option value="5">☕️☕️☕️☕️☕️</option>
+        </select>
+    </div>
+    <div>
+        <label for="wifi_rating">Wifi Strength Rating</label>
+        <select id="wifi_rating" name="wifi_rating" required>
+            <option value="1">✘</option>
+            <option value="2">💪💪</option>
+            <option value="3">💪💪💪</option>
+            <option value="4">💪💪💪💪</option>
+            <option value="5">💪💪💪💪💪</option>
+        </select>
+    </div>
+    <div>
+        <label for="power_rating">Power Socket Availability</label>
+        <select id="power_rating" name="power_rating" required>
+            <option value="1">✘</option>
+            <option value="2">🔌</option>
+            <option value="3">🔌🔌🔌</option>
+            <option value="4">🔌🔌🔌🔌</option>
+            <option value="5">🔌🔌🔌🔌🔌</option>
+        </select>
+    </div>
+
+    <button type="submit">Submit</button>
+</form>
+
+<p><a href="/cafes">See all cafes</a></p>
 {% endblock %}

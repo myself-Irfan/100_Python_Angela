@@ -1,3 +1,26 @@
+{% set coffee_map = {
+'1': '☕️',
+'2': '☕️☕️',
+'3': '☕️☕️☕️',
+'4': '☕️☕️☕️☕️',
+'5': '☕️☕️☕️☕️☕️'
+} %}
+{% set wifi_map = {
+'1': '✘',
+'2': '💪💪',
+'3': '💪💪💪',
+'4': '💪💪💪💪',
+'5': '💪💪💪💪💪'
+} %}
+{% set power_map = {
+'1': '✘',
+'2': '🔌',
+'3': '🔌🔌🔌',
+'4': '🔌🔌🔌🔌',
+'5': '🔌🔌🔌🔌🔌'
+} %}
+
+
 {% extends "base.html" %}
 
 {% block title %}
@@ -7,15 +30,36 @@ Cafes
 {% block content %}
 <h1>All Cafes</h1>
 <table class="table table-dark table-striped table-hover">
-    {% for row in cafes %}
+    <thead>
     <tr>
-        {% for item in row %} {% if item[0:4] == "http" %}
-        <td><a href="{{ item }}">Maps Link</a></td>
-        {% else %}
-        <td>{{ item }}</td>
-        {% endif %} {% endfor %}
+        <th>Name</th>
+        <th>Location</th>
+        <th>Opening Time</th>
+        <th>Closing Time</th>
+        <th>Coffee Rating</th>
+        <th>Wifi Rating</th>
+        <th>Power Rating</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for cafe in cafes %}
+    <tr>
+        <td>{{ cafe.name }}</td>
+        <td>
+            {% if cafe.location.startswith('http') %}
+            <a href="{{ cafe.location }}" target="_blank" rel="noopener noreferrer">Maps Link</a>
+            {% else %}
+            {{ cafe.location }}
+            {% endif %}
+        </td>
+        <td>{{ cafe.open_time.strftime('%I:%M %p') if cafe.open_time else '' }}</td>
+        <td>{{ cafe.close_time.strftime('%I:%M %p') if cafe.close_time else '' }}</td>
+        <td>{{ coffee_map[cafe.coffee_rating] }}</td>
+        <td>{{ wifi_map[cafe.wifi_rating] }}</td>
+        <td>{{ power_map[cafe.power_rating] }}</td>
     </tr>
     {% endfor %}
+    </tbody>
 </table>
 <p><a href="{{ url_for('home') }}">Return Home</a></p>
 {% endblock %}
