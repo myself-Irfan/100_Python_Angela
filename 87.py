@@ -182,8 +182,8 @@ class BreakOutGame:
 
         for row in range(max_row):
             for col in range(max_col):
-                x = start_x + col * 60 # space b/w bricks
-                y = start_y - row * 30
+                x = start_x + col * total_brick_width
+                y = start_y - row * total_brick_height
                 color = choice(BRICK_COLORS)
                 brick = Brick(x, y, color)
                 bricks.append(brick)
