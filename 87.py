@@ -39,7 +39,7 @@ class Paddle(Turtle):
         self.color('white')
         self.shapesize(stretch_wid=1, stretch_len=5)
         self.penup()
-        self.init_pos(-250)
+        self.init_pos(-350)
 
         logging.info(f'{self.__class__.__name__} initialized successfully')
 
@@ -68,7 +68,7 @@ class Ball(Turtle):
         self.dx = BALL_SPEED
         self.dy = BALL_SPEED
 
-        self.init_pos(-200)
+        self.init_pos(-250)
 
         logging.info(f'{self.__class__.__name__} initialized successfully')
 
@@ -111,7 +111,10 @@ class Scoreboard(Turtle):
         self.color('white')
         self.penup()
         self.hideturtle()
-        self.goto(0, SCREEN_WIDTH // 4)
+
+        margin_x = -SCREEN_WIDTH // 2 + 20
+        margin_y = SCREEN_HEIGHT // 2 - 40
+        self.goto(margin_x, margin_y)
         self.update_score()
 
         logging.info(f'{self.__class__.__name__} initialized successfully')
@@ -120,7 +123,7 @@ class Scoreboard(Turtle):
         self.clear()
         self.write(
             f'Score: {self.score}',
-            align='center',
+            align='left',
             font=('Arial', 20, 'normal')
         )
 
@@ -162,13 +165,25 @@ class BreakOutGame:
         logging.info(f'Initializing brick walls from {self.__class__.__name__}')
 
         bricks = []
-        start_x = -SCREEN_WIDTH // 2 + 50
-        start_y = 200
 
-        for row in range(BRICK_ROWS):
-            for col in range(BRICK_COLUMNS):
-                x = start_x + col * 60
-                y = start_y + row * 30
+        brick_width = BRICK_WIDTH
+        brick_height = BRICK_HEIGHT
+        brick_spacing_x = BRICK_SPACING_X
+        brick_spacing_y = BRICK_SPACING_Y
+
+        total_brick_width = brick_width + brick_spacing_x
+        total_brick_height = brick_height + brick_spacing_y
+
+        max_col = (SCREEN_WIDTH - 100) // total_brick_width
+        max_row = (SCREEN_HEIGHT // 3) // total_brick_height
+
+        start_x = -((max_col - 1) * total_brick_width) // 2
+        start_y = SCREEN_HEIGHT // 2 - 80
+
+        for row in range(max_row):
+            for col in range(max_col):
+                x = start_x + col * 60 # space b/w bricks
+                y = start_y - row * 30
                 color = choice(BRICK_COLORS)
                 brick = Brick(x, y, color)
                 bricks.append(brick)
@@ -200,7 +215,7 @@ class BreakOutGame:
                 self.ball.bounce_y()
 
             # paddle collisions
-            if -250 < self.ball.ycor() < -240 and self.paddle.xcor() - 50 < self.ball.xcor() < self.paddle.xcor() + 50:
+            if -350 < self.ball.ycor() < -340 and self.paddle.xcor() - 50 < self.ball.xcor() < self.paddle.xcor() + 50:
                 self.ball.bounce_y()
 
             # bottom wall (lose condition)
@@ -237,13 +252,16 @@ def main():
 if __name__ == '__main__':
     CUR_FILE = os.path.splitext(os.path.basename(__file__))[0]
 
-    SCREEN_WIDTH = 800
-    SCREEN_HEIGHT = 600
+    SCREEN_WIDTH = 1000
+    SCREEN_HEIGHT = 800
     PADDLE_SPEED = 40
     BALL_SPEED = 3
 
     BRICK_COLORS = ["red", "orange", "yellow", "green", "blue"]
-    BRICK_ROWS = 4
-    BRICK_COLUMNS = 12
+
+    BRICK_WIDTH = 40
+    BRICK_HEIGHT = 20
+    BRICK_SPACING_X = 20
+    BRICK_SPACING_Y = 15
 
     main()
