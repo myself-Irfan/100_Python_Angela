@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from database import get_db
 from models import Cafe
 from forms import CafeFormData
 from logger import get_logger
@@ -12,13 +12,6 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 logger = get_logger(__name__)
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # routes
 @router.get("/")
@@ -37,6 +30,8 @@ def add_cafe(
     form_data: CafeFormData = Depends(CafeFormData.as_form),
     db: Session = Depends(get_db)
 ):
+    logger.info('Request received for add cafe')
+
     try:
         new_cafe = Cafe(
             name=form_data.cafe,

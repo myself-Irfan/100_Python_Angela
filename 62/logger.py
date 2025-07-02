@@ -8,14 +8,14 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 def get_logger(name: str = __name__) -> logging.Logger:
 
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
     if logger.hasHandlers():
         return logger
 
     formatter = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(name)s -%(funcName)s %(message)s'
+        '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s | %(message)s'
     )
 
     # console logging
