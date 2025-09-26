@@ -6,3 +6,5 @@ __pycache__/
 *.json
 *.db
 .DS_Store
+**/*.pdf
+**/*.mp3
