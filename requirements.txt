@@ -1,3 +1,7 @@
+structlog
+pypdf2
+pydub
+gtts
 alembic==1.15.2
 altgraph==0.17.4
 annotated-types==0.7.0
