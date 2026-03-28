@@ -1,0 +1,9 @@
+{
+  "chunk_size": 2000,
+  "lookahead_ratio": 0.1,
+  "min_break_ratio": 0.7,
+  "lang": "en",
+  "max_workers": 5,
+  "output_name": "audiobook",
+  "input_file": "input.pdf"
+}
