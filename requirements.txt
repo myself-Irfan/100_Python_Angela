@@ -1,3 +1,4 @@
+streamlit
 structlog
 pypdf2
 pydub
