@@ -1,3 +1,4 @@
+pydantic-settings
 structlog
 pypdf2
 pydub
